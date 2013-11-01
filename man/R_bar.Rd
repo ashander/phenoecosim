@@ -1,0 +1,28 @@
+\name{R_bar}
+\alias{R_bar}
+\title{Compute population growth rate under stabilizing selection}
+\usage{
+  R_bar(N, R0, Wbar, K, thetaL)
+}
+\arguments{
+  \item{N}{number of individuals in this generation}
+
+  \item{R0}{basic reproductive number}
+
+  \item{Wbar}{average fitness}
+
+  \item{K}{carrying capacity}
+
+  \item{thetaL}{theta-logistic parameter for density
+  dependence}
+}
+\description{
+  Compute population growth rate under stabilizing
+  selection
+}
+\details{
+  Assumes theta-logistic population regulation would be
+  good to have separate DD function specified after chevin
+  and lande 2010
+}
+

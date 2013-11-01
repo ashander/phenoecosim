@@ -1,0 +1,15 @@
+Package: ecoevomoveopt
+Description: A set of codes to simulate evolutionary, plastic and ecological
+    responses to moving optima
+Title: Eco evo plasticity moving optimum simulator
+Version: 0.0-1
+Date: 2013-10-31
+Authors@R: c(person("Jaime", "Ashander", role = c("aut", "cre"), email=
+    'jashander@ucdavis.edu'))
+Depends:
+    deSolve
+License: BSD
+Collate:
+    'evosim-package.R'
+    'traitfitpop.R'
+    'envsim.R'

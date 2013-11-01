@@ -1,0 +1,25 @@
+\name{Env_smooth}
+\alias{Env_smooth}
+\title{Simulate one step of a linearly changing environment, possibly with noise}
+\usage{
+  Env_smooth(env, t, rho, env.args)
+}
+\arguments{
+  \item{env}{environment in previous time step}
+
+  \item{t}{the time point}
+
+  \item{rho}{the correlation between environment of
+  selection and the cue}
+
+  \item{env.args}{other args: eta rate of environmental
+  change, sd noise in env sdc noise in cue}
+}
+\description{
+  Simulate one step of a linearly changing environment,
+  possibly with noise
+}
+\details{
+  other args in env args
+}
+

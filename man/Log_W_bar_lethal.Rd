@@ -1,0 +1,19 @@
+\name{Log_W_bar_lethal}
+\alias{Log_W_bar_lethal}
+\title{Mean fitness -- with constraint, need to make as function of environment...}
+\usage{
+  Log_W_bar_lethal(env, LL = 4)
+}
+\arguments{
+  \item{env}{the environment}
+
+  \item{LL}{lethal limit}
+}
+\description{
+  Mean fitness -- with constraint, need to make as function
+  of environment...
+}
+\details{
+  need to revisit this
+}
+
