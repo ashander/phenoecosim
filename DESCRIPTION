@@ -6,8 +6,9 @@ Version: 0.0-1
 Date: 2013-10-31
 Authors@R: c(person("Jaime", "Ashander", role = c("aut", "cre"), email=
     'jashander@ucdavis.edu'))
-Depends:
-    deSolve
+Imports:
+    deSolve,
+    MASS
 License: BSD
 Collate:
     'evosim-package.R'
