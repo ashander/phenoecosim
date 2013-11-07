@@ -1,7 +1,9 @@
-Package: ecoevomoveopt
+Package: phenoecosim
 Description: A set of codes to simulate evolutionary, plastic and ecological
-    responses to moving optima
-Title: Eco evo plasticity moving optimum simulator
+    responses to changing environments, including discrete shifts and
+    constantly moving optima
+Title: Simulations of eco-evo trait and demographic dynamics under changing
+    environments
 Version: 0.0-1
 Date: 2013-10-31
 Authors@R: c(person("Jaime", "Ashander", role = c("aut", "cre"), email=
