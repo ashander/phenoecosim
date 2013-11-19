@@ -7,6 +7,7 @@
 #' @details Assumes theta-logistic population regulation
 #' would be good to have separate DD function specified after
 #' chevin and lande 2010
+#' @export
 R_bar <- function(N, R0, Wbar, K, thetaL)
     R0^(1 - (N/K)^thetaL) * Wbar
 
@@ -17,6 +18,7 @@ R_bar <- function(N, R0, Wbar, K, thetaL)
 #' @param gamma 1/(Oz2 + Vz2), with Vz2 phenotypic variance 
 #' @param log (=TRUE) whether to return the log of fitness  
 #' @details no details
+#' @export
 W_bar <- function(zbar, theta, Oz2, gamma, log=TRUE){
     if(log)
         return(0.5 * log(gamma * Oz2) -gamma /2 * (zbar - theta)^2)## compare with eqn 2c lande 2009
@@ -32,12 +34,14 @@ W_bar <- function(zbar, theta, Oz2, gamma, log=TRUE){
 #' @param x  the environment
 #' @param LL lethal limit (symmetric)
 #' @details fitness surf infinitesimal optimum  need to revisit
+#' @export
 stab_curve<- function(x, LL) -(x-LL)*(x+LL) * 1/LL^2
 
 #' Mean fitness -- with constraint, need to make as function of environment...
 #' @param env the environment
 #' @param LL lethal limit 
 #' @details need to revisit this
+#' @export
 Log_W_bar_lethal <- function(env, LL=4)   {
   if(env > -LL & env < LL)
     return(stab_curve(env, LL))
@@ -126,8 +130,6 @@ Pheno_lande <- function(t, X, p, G, env.fn, env.args) {
 #' @import deSolve
 #' @export
 Pheno_demo <- function(t, X, p, G, env.fn, env.args) {
-    ## TODO fix error in demo, returns NA after Ni 10000 at time zero
-    ## first issue is R0 missing from call... 
   ## state vars
   a <- X[1] # elevation
   b <- X[2]  # slope
