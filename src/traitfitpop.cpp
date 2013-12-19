@@ -53,6 +53,7 @@ arma::mat pdLande (int t, Arma::Vec X, List params,
 }
 
 
+
 // ** below at least compile when used in 
 // cppFunction(code='//code here ', depends='RcppArmadillo')
 
