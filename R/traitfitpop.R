@@ -86,6 +86,60 @@ Va <-function(e.plast, GG){
     ee %*% GG %*% ee
   }
 
+cppFunction(code='
+arma::colvec Env_shift(arma::mat sigma, List rparam) {
+
+  double t_jump = as<double>(rparam["t.jump"]);
+
+  arma::colvec out(2);
+  out.fill(t_jump); 
+  return trans(out) * sigma * out; 
+}', depends='RcppArmadillo')
+
+
+sourceCpp(code='
+#include <RcppArmadillo.h>
+// [[Rcpp::export]]
+double W_bar (double zbar, double theta, double Oz2, double gamma, bool LOG){
+  if(LOG){
+    return 0.5 * log(gamma * Oz2) - gamma /2 * pow(zbar - theta, 2); //## compare with eqn 2c lande 2009;
+      }
+  else {
+    return  sqrt(gamma * Oz2) * exp(- gamma /2 * pow(zbar - theta,2)); 
+  }
+}
+
+// [[Rcpp::export]]
+double  R_bar(double N, double R0, double Wbar, double K, double thetaL){
+    return pow(R0, (1 -pow(N/K, thetaL))) * Wbar;
+      }
+
+// [[Rcpp::export]]
+arma::colvec Beta(double gamma, double A, double B, double a, double b, double e_t, double e_plast){
+  //## eqn 3b
+  double beta1;
+  beta1 = -gamma * (a - A + b * e_plast - B * e_t);
+  arma::colvec beta(2);
+  beta(1) =  beta1;
+  beta(2) = beta1 * e_plast;
+  return beta;
+}
+
+// [[Rcpp::export]]
+arma::mat Va (arma::colvec env, arma::mat GG){
+    // env should be column vector
+    return trans(env) * GG * env;
+}')
+
+code <- '
+   arma::mat GG = Rcpp::as<arma::mat>(G);
+   arma::colvec env = Rcpp::as<arma::colvec>(e);
+    // env should be column vector
+   return Rcpp::wrap(trans(env) * GG * env);
+ '
+Va <- cxxfunction(signature(G="numeric",e="numeric"),
+                        code,plugin="RcppArmadillo")
+
 #' Compute trait change under stabilizing selection as function of environment
 #' @param t timestep
 #' @param X parameters (a, b, env)
