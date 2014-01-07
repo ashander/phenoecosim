@@ -1,19 +1,13 @@
-\name{Env_shift}
-\alias{Env_shift}
+\name{Env_shift_cpp}
+\alias{Env_shift_cpp}
 \title{Compute a white noise environment with a shift}
 \usage{
-  Env_shift(t, env_args)
+  Env_shift_cpp(t, env_args)
 }
 \arguments{
-  \item{env}{previous year's environment NOT used in
-  current formulation}
-
   \item{t}{the time point}
 
-  \item{rho}{the correlation between environment of
-  selection and the cue}
-
-  \item{env.args}{other args: t.jump the location for the
+  \item{env_args}{other args: t.jump the location for the
   jump, delta env change that takes place at t.jump sd
   noise in env sdc noise in cue}
 }

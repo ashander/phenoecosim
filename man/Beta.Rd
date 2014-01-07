@@ -2,7 +2,7 @@
 \alias{Beta}
 \title{Selection on plasticity as as function of environment assuming stabilizing selection}
 \usage{
-  Beta(gamma, A, B, a, b, e.t, e.plast)
+  Beta(gamma, A, B, a, b, e_t, e_plast)
 }
 \arguments{
   \item{gamma}{= 1/(Oz2 + Vz2), with Vz2 phenotypic
@@ -16,9 +16,9 @@
 
   \item{b}{current value of RN slope}
 
-  \item{e.t}{environment now}
+  \item{e_t}{environment now}
 
-  \item{e.plast}{env that cues plasticity}
+  \item{e_plast}{env that cues plasticity}
 }
 \description{
   Selection on plasticity as as function of environment

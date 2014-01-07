@@ -1,12 +1,10 @@
-\name{W_bar}
-\alias{W_bar}
+\name{Log_W_bar}
+\alias{Log_W_bar}
 \title{Compute mean fitness under stabilizing selection}
 \usage{
-  W_bar(zbar, theta, Oz2, gamma, LOG)
+  Log_W_bar(zbar, theta, Oz2, gamma)
 }
 \arguments{
-  \item{LOG}{(=TRUE) whether to return the log of fitness}
-
   \item{zbar}{mean trait prior to selection}
 
   \item{theta}{environmental optimum}
