@@ -9,7 +9,7 @@
 
   \item{zbar}{mean trait prior to selection}
 
-  \item{theta}{environmental optimum}
+  \item{theta}{enironmental optimum}
 
   \item{Oz2}{strength of stabilizing selection}
 

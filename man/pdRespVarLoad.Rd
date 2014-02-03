@@ -1,12 +1,12 @@
-\name{pdLandeT}
-\alias{pdLandeT}
-\title{Compute trait + demographic change over T generations under stabilizing selection as
+\name{pdRespVarLoad}
+\alias{pdRespVarLoad}
+\title{Compute change in fitness over one generation after stabilizing selection
 function of environment (after Lande Chevin)}
 \usage{
-  pdLandeT(T, X, params, G, env_args)
+  pdRespVarLoad(t, X, params, G, env_args)
 }
 \arguments{
-  \item{T}{end time, assuming start time of 1}
+  \item{t}{timestep}
 
   \item{X}{parameters (a, b, env, logN)}
 
@@ -16,10 +16,13 @@ function of environment (after Lande Chevin)}
 
   \item{env_args}{extra args for env.fn}
 }
+\value{
+  rowvector: log R bar, delta R bar, variance load
+}
 \description{
-  Compute trait + demographic change over T generations
-  under stabilizing selection as function of environment
-  (after Lande Chevin)
+  Compute change in fitness over one generation after
+  stabilizing selection function of environment (after
+  Lande Chevin)
 }
 \details{
   function signature as for use with deSolve imposes

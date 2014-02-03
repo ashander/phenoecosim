@@ -9,7 +9,7 @@ using namespace Rcpp; // done by sourceCpp?
 
 //' Compute mean fitness under stabilizing selection
 //' @param zbar mean trait prior to selection
-//' @param theta environmental optimum
+//' @param theta enironmental optimum
 //' @param Oz2 strength of stabilizing selection
 //' @param gamma 1/(Oz2 + Vz2), with Vz2 phenotypic variance 
 //' @details no details
@@ -86,9 +86,9 @@ arma::vec Beta(double gamma, double A, double B, double a, double b, double e_t,
 //' @param GG additive genetic variance-covariance matrix
 //' @export
 // [[Rcpp::export]]
-arma::mat Va (arma::vec env, arma::mat GG){
+double Va (arma::vec env, arma::mat GG){
     // env should be column vector
-    return trans(env) * GG * env;
+  return as_scalar(trans(env) * GG * env);
 }
 
 //' Compute a white noise environment with a shift
@@ -126,12 +126,83 @@ arma::vec Env_shift_cpp(int t, List env_args) {
 
 }
 
+//' Internal function
+// [[Rcpp::export]]
+arma::rowvec pdIter(int len, double z_bar, double theta_t, double Oz2, double gamma, double A, double B, 
+		    double a, double b, double e_t, double e_plast, 
+		    arma::mat G,
+		    double logN, double R0, double K, double thetaL){
+  double log_w_bar = Log_W_bar(z_bar, theta_t , Oz2, gamma); 
+
+  arma::vec beta = Beta(gamma, A, B, a, b, e_t, e_plast);
+
+  // construct the output
+  arma::rowvec out(len);
+  out.cols(0,1) = trans(G * beta);
+  out(0) += a;
+  out(1) += b;
+  out(2) = e_t;
+  out(3) = Log_R_bar(exp(logN), R0, log_w_bar, K, thetaL)  + logN; // demo update based on mean fitness
+  return out;
+}
+
+
+//' Compute change in fitness over one generation after stabilizing selection
+//' function of environment (after Lande Chevin)
+//' @param t timestep
+//' @param X parameters (a, b, env, logN)
+//' @param params a list with (Oz2, AB, R0, K, theta)
+//' @param G the (constant) G matrix
+//' @param env_args extra args for env.fn
+//' @details function signature as for use with deSolve
+//' imposes fitness based on Lande
+//' and demography after CL 2010
+//' @return rowvector: log R bar, delta R bar, variance load
+//' @export
+// [[Rcpp::export]]
+arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params, 
+		   arma::mat G, List env_args) {
+  // state vars in X (R indexing)
+  // a <- X[1] // elevation
+  // b <- X[2]  // slope
+  //// env <- X[3]
+  // logN = X[4]
+
+  double Oz2  = as<double>(params["Oz2"]);
+  arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
+  double R0 = as<double>(params["R0"]);
+  double K = as<double>(params["K"]);
+  double thetaL = as<double>(params["thetaL"]);
+  
+  arma::vec ee = Env_shift_cpp(t, env_args);
+  arma::vec env(2);
+  env.fill(1.0);
+  env(1)= ee(1);
+  
+  double z_bar = arma::as_scalar(X.cols(0,1) * env); 
+  double theta_t = arma::as_scalar(AB * env);
+  double gamma = 1 / (Oz2 + Va(env, G));
+  arma::rowvec out(3);
+  out(0) = Log_R_bar(exp(X(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL); // mean fitness pre selection
+
+  // selection
+  arma::rowvec oneiter =  pdIter(X.size(), z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
+		X(0), X(1), ee(0), ee(1),
+		G,
+		X(3), R0, K, thetaL);
+  z_bar = as_scalar(oneiter.cols(0,1) * env); // update mean z based on selection
+
+  out(1) = Log_R_bar(exp(oneiter(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL) - out(0);
+  out(2) = 0.5 * log( 1 + Va(env, G) / Oz2);
+  return out;
+}
+
 
 //' Compute trait + demographic change over one generation under stabilizing selection as 
 //' function of environment (after Lande Chevin)
 //' @param t timestep
 //' @param X parameters (a, b, env, logN)
-//' @param params a list with (gamma, Oz2, AB, R0, K, theta)
+//' @param params a list with (Oz2, AB, R0, K, theta)
 //' @param G the (constant) G matrix
 //' @param env_args extra args for env.fn
 //' @details function signature as for use with deSolve
@@ -147,7 +218,6 @@ arma::rowvec pdLande (int t, arma::rowvec X, List params,
   //// env <- X[3]
   // logN = X[4]
 
-  double gamma  = as<double>(params["gamma"]);
   double Oz2  = as<double>(params["Oz2"]);
   arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
   double R0 = as<double>(params["R0"]);
@@ -161,18 +231,59 @@ arma::rowvec pdLande (int t, arma::rowvec X, List params,
   
   double z_bar = arma::as_scalar(X.cols(0,1) * env); 
   double theta_t = arma::as_scalar(AB * env);
-
-  //(double z_bar, double theta_t, double Oz2, double gamma, 
-  double log_w_bar = Log_W_bar(z_bar, theta_t , Oz2, gamma); 
-  
-  arma::vec beta = Beta(gamma, AB(0), AB(1), X(0), X(1), ee(0), ee(1));
-
-  // construct the output
-  arma::rowvec out(X.size());
-  out.cols(0,1) = X.cols(0,1) + trans(G * beta);
-  out(2) = env(1);
-  out(3) = Log_R_bar(exp(X(3)), R0, log_w_bar, K, thetaL)  + X(3); // demo update based on mean fitness
-  return out;
+  double gamma = 1 / (Oz2 + Va(env, G));
+  return pdIter(X.size(), z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
+		X(0), X(1), ee(0), ee(1),
+		G,
+		X(3), R0, K, thetaL);
 }
 
 
+//' Compute trait + demographic change over T generations under stabilizing selection as 
+//' function of environment (after Lande Chevin)
+//' @param T end time, assuming start time of 1
+//' @param X parameters (a, b, env, logN)
+//' @param params a list with (Oz2, AB, R0, K, theta)
+//' @param G the (constant) G matrix
+//' @param env_args extra args for env.fn
+//' @details function signature as for use with deSolve
+//' imposes fitness based on Lande
+//' and demography after CL 2010
+//' @export
+// [[Rcpp::export]]
+arma::rowvec pdLandeT (int T, arma::rowvec X, List params, 
+		   arma::mat G, List env_args) {
+  // state vars in X (R indexing)
+  // a <- X[1] // elevation
+  // b <- X[2]  // slope
+  //// env <- X[3]
+  // logN = X[4]
+
+  //  double gamma  = as<double>(params["gamma"]);
+  double Oz2  = as<double>(params["Oz2"]);
+  arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
+  double R0 = as<double>(params["R0"]);
+  double K = as<double>(params["K"]);
+  double thetaL = as<double>(params["thetaL"]);
+  double gamma = 0;
+  int len = X.size();
+  arma::rowvec out(len);
+  out = X; 
+  for(int t=1; t <= T; t++){
+    arma::vec ee = Env_shift_cpp(t, env_args);
+    arma::vec env(2);
+    env.fill(1.0);
+    env(1)= ee(1);
+    gamma = 1 / (Oz2 + Va(env, G));
+
+    double z_bar = arma::as_scalar(X.cols(0,1) * env); 
+    double theta_t = arma::as_scalar(AB * env);
+    gamma = 1 / (Oz2 + Va(env, G));
+
+    out = pdIter(len, z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
+		  out(0), out(1), ee(0), ee(1),
+		  G,
+		  out(3), R0, K, thetaL);
+  }
+  return out;
+}

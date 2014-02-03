@@ -8,15 +8,16 @@ Version: 0.0-1
 Date: 2013-10-31
 Authors@R: c(person("Jaime", "Ashander", role = c("aut", "cre"), email=
     'jashander@ucdavis.edu'))
-Depends: Rcpp (>= 0.10.6), RcppArmadillo (>= 0.3.9)
+Depends:
+    Rcpp (>= 0.10.6),
+    RcppArmadillo (>= 0.3.9)
 LinkingTo: Rcpp, RcppArmadillo
 Imports:
     deSolve,
-    MASS
+    MASS,
 License: BSD
 Collate:
-    'evosim-package.R'
     'traitfitpop.R'
     'envsim.R'
-
-
+    'RcppExports.R'
+    'phenoecosim-package.R'

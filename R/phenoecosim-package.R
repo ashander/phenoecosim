@@ -1,5 +1,5 @@
-#' evosim
-#'
-#' @name evosim
+#' phenoecosim
+#' @name phenoecosim
 #' @docType package
+#' @useDynLib phenoecosim
 NULL

@@ -1,35 +1,3 @@
-#' Compute population growth rate under stabilizing selection
-#' @param N number of individuals in this generation
-#' @param R0 basic reproductive number
-#' @param Wbar average fitness
-#' @param K carrying capacity
-#' @param thetaL theta-logistic parameter for density dependence
-#' @details Assumes theta-logistic population regulation
-#' would be good to have separate DD function specified after
-#' chevin and lande 2010
-#' @export
-R_bar <- function(N, R0, Wbar, K, thetaL)
-    R0^(1 - (N/K)^thetaL) * Wbar
-
-#' Compute log mean fitness under stabilizing selection
-#' @param zbar mean trait prior to selection
-#' @param theta environmental optimum
-#' @param Oz2 strength of stabilizing selection
-#' @param gamma 1/(Oz2 + Vz2), with Vz2 phenotypic variance 
-#' @param log (=TRUE) whether to return the log of fitness  
-#' @details no details
-#' @export
-W_bar <- function(zbar, theta, Oz2, gamma, log=TRUE){
-    if(log)
-        return(0.5 * log(gamma * Oz2) -gamma /2 * (zbar - theta)^2)## compare with eqn 2c lande 2009
-    else
-        return( sqrt(gamma* Oz2) * exp(- gamma /2 * (zbar - theta)^2)) 
-    ## old code
-    ## Log.W.bar <- function(z.bar, theta, e=0)  
-    ##     0.5 * log(gamma * omega2) - gamma / 2 * (z.bar - theta)^2 # eqn 2c
-}
-
-
 #' Mean fitness -- with constraint, need to make as function of environment...
 #' @param x  the environment
 #' @param LL lethal limit (symmetric)
@@ -57,35 +25,6 @@ Log_W_bar_lethal <- function(env, LL=4)   {
 #' @export
 G <- function(Gaa, Gbb, Gab)
     matrix( c(Gaa, Gab, Gab, Gbb), nrow=2) #eqn 3a
-
-#' Selection on plasticity as as function of environment assuming stabilizing selection
-#' @param gamma = 1/(Oz2 + Vz2), with Vz2 phenotypic variance
-#' @param A the environmental optimum RN int
-#' @param B the environmental optimum RN slope
-#' @param a current value of RN int
-#' @param b current value of RN slope
-#' @param e.t environment now
-#' @param e.plast env that cues plasticity
-#' @export
-Beta <- function(gamma, A, B, a, b, e.t, e.plast){
-  ## eqn 3b
-  beta1 <- a - A + b * e.plast - B * e.t
-  -gamma * c( beta1 , 
-             beta1 * e.plast)
-}
-
-#' Va additive genetic variance in the phenotype as a function of the environment
-#' @param e.plast environment in which plastiicty is cued
-#' @param GG additive genetic variance-covariance matrix
-#' @export
-Va <-function(e.plast, GG){
-    ##    first three terms of eqn 1c
-    ##if(nrow(GG) != 2)
-    ##    stop("g is not a matrix of correct size")
-    ee <- c(1, e.plast)
-    ee %*% GG %*% ee
-  }
-
 
 #' Compute trait change under stabilizing selection as function of environment
 #' @param t timestep
@@ -117,8 +56,8 @@ Pheno_lande <- function(t, X, p, G, env.fn, env.args) {
   X <- c(a, b) + G %*% beta
   va <- Va(e.plast, G) 
   list(c(X, env, z.bar, va))
-}
 
+}
 #' Compute trait + demographic change under stabilizing selection as function of environment
 #' @param t timestep
 #' @param X parameters (a, b, env, N)
@@ -253,9 +192,10 @@ Pheno_demo_econ <- function(t, X, p, G,  env.fn, env.args, interv) {
 ## for examples use #' examples \dontrun{}
 
 
-## @knitr tolerance-functions
+##  tolerance-functions
 ## fitsurf Lande (mean) -- not sure what i'm doing with this
 ## lande.fit <- function(x) exp( - (x * (E.B-B))^2/(2 * 50))
+
 
 
 

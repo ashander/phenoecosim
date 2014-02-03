@@ -10,7 +10,7 @@ function of environment (after Lande Chevin)}
 
   \item{X}{parameters (a, b, env, logN)}
 
-  \item{params}{a list with (gamma, Oz2, AB, R0, K, theta)}
+  \item{params}{a list with (Oz2, AB, R0, K, theta)}
 
   \item{G}{the (constant) G matrix}
 

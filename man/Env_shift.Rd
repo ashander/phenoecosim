@@ -2,7 +2,7 @@
 \alias{Env_shift}
 \title{Compute a white noise environment with a shift}
 \usage{
-  Env_shift(t, env_args)
+  Env_shift(env, t, rho, env.args)
 }
 \arguments{
   \item{env}{previous year's environment NOT used in
