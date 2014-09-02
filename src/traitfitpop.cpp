@@ -1,4 +1,4 @@
-#include <RcppArmadillo.h>
+#include "RcppArmadillo.h" // after version 4.3
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp; // done by sourceCpp?
@@ -126,8 +126,7 @@ arma::vec Env_shift_cpp(int t, List env_args) {
 
 }
 
-//' Internal function
-// [[Rcpp::export]]
+// Internal function
 arma::rowvec pdIter(int len, double z_bar, double theta_t, double Oz2, double gamma, double A, double B, 
 		    double a, double b, double e_t, double e_plast, 
 		    arma::mat G,
@@ -173,6 +172,7 @@ arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params,
   double R0 = as<double>(params["R0"]);
   double K = as<double>(params["K"]);
   double thetaL = as<double>(params["thetaL"]);
+  double Ve = as<double>(params["Ve"]);
   
   arma::vec ee = Env_shift_cpp(t, env_args);
   arma::vec env(2);
@@ -181,7 +181,7 @@ arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params,
   
   double z_bar = arma::as_scalar(X.cols(0,1) * env); 
   double theta_t = arma::as_scalar(AB * env);
-  double gamma = 1 / (Oz2 + Va(env, G));
+  double gamma = 1 / (Oz2 + Va(env, G) + Ve);
   arma::rowvec out(3);
   out(0) = Log_R_bar(exp(X(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL); // mean fitness pre selection
 
@@ -193,7 +193,7 @@ arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params,
   z_bar = as_scalar(oneiter.cols(0,1) * env); // update mean z based on selection
 
   out(1) = Log_R_bar(exp(oneiter(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL) - out(0);
-  out(2) = 0.5 * log( 1 + Va(env, G) / Oz2);
+  out(2) = 0.5 * log( 1 + (Va(env, G) + Ve) / Oz2);
   return out;
 }
 
@@ -223,7 +223,8 @@ arma::rowvec pdLande (int t, arma::rowvec X, List params,
   double R0 = as<double>(params["R0"]);
   double K = as<double>(params["K"]);
   double thetaL = as<double>(params["thetaL"]);
-  
+  double Ve = as<double>(params["Ve"]);
+
   arma::vec ee = Env_shift_cpp(t, env_args);
   arma::vec env(2);
   env.fill(1.0);
@@ -231,7 +232,7 @@ arma::rowvec pdLande (int t, arma::rowvec X, List params,
   
   double z_bar = arma::as_scalar(X.cols(0,1) * env); 
   double theta_t = arma::as_scalar(AB * env);
-  double gamma = 1 / (Oz2 + Va(env, G));
+  double gamma = 1 / (Oz2 + Va(env, G) + Ve);
   return pdIter(X.size(), z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
 		X(0), X(1), ee(0), ee(1),
 		G,
@@ -259,12 +260,13 @@ arma::rowvec pdLandeT (int T, arma::rowvec X, List params,
   //// env <- X[3]
   // logN = X[4]
 
-  //  double gamma  = as<double>(params["gamma"]);
   double Oz2  = as<double>(params["Oz2"]);
   arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
   double R0 = as<double>(params["R0"]);
   double K = as<double>(params["K"]);
   double thetaL = as<double>(params["thetaL"]);
+  double Ve = as<double>(params["Ve"]);
+
   double gamma = 0;
   int len = X.size();
   arma::rowvec out(len);
@@ -274,11 +276,10 @@ arma::rowvec pdLandeT (int T, arma::rowvec X, List params,
     arma::vec env(2);
     env.fill(1.0);
     env(1)= ee(1);
-    gamma = 1 / (Oz2 + Va(env, G));
 
     double z_bar = arma::as_scalar(X.cols(0,1) * env); 
     double theta_t = arma::as_scalar(AB * env);
-    gamma = 1 / (Oz2 + Va(env, G));
+    gamma = 1 / (Oz2 + Va(env, G) + Ve);
 
     out = pdIter(len, z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
 		  out(0), out(1), ee(0), ee(1),
@@ -286,4 +287,79 @@ arma::rowvec pdLandeT (int T, arma::rowvec X, List params,
 		  out(3), R0, K, thetaL);
   }
   return out;
+}
+
+
+//' Compute trait + demographic change over over T generations and
+//' long run growth rate over last N_lam generations
+//' under stabilizing selection as 
+//' function of environment (after Lande Chevin)
+//' @param T end time, assuming start time of 1
+//' @param N_lam number of gens over which to compute long-run growth  -- must be less than T
+//' @param X parameters (a, b, env, logN)
+//' @param params a list with (Oz2, AB, R0, K, theta)
+//' @param G the (constant) G matrix
+//' @param env_args extra args for env.fn
+//' @details function signature as for use with deSolve
+//' imposes fitness based on Lande
+//' and demography after CL 2010
+//' @export
+// [[Rcpp::export]]
+double pdLandeLRG (int T, int N_lam, arma::rowvec X, List params, 
+		   arma::mat G, List env_args) {
+  // state vars in X (R indexing)
+  // a <- X[1] // elevation
+  // b <- X[2]  // slope
+  //// env <- X[3]
+  // logN = X[4]
+
+  // TODO - error check  N_lam < T
+  double Oz2  = as<double>(params["Oz2"]);
+  arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
+  double R0 = as<double>(params["R0"]);
+  double K = as<double>(params["K"]);
+  double thetaL = as<double>(params["thetaL"]);
+  double Ve = as<double>(params["Ve"]);
+
+  double gamma = 0;
+  int len = X.size();
+  arma::rowvec out(len);
+  out = X; 
+  for(int t=1; t <= T - N_lam; t++){
+    arma::vec ee = Env_shift_cpp(t, env_args);
+    arma::vec env(2);
+    env.fill(1.0);
+    env(1)= ee(1);
+
+    double z_bar = arma::as_scalar(X.cols(0,1) * env); 
+    double theta_t = arma::as_scalar(AB * env);
+    gamma = 1 / (Oz2 + Va(env, G) + Ve);
+
+    out = pdIter(len, z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
+		  out(0), out(1), ee(0), ee(1),
+		  G,
+		  out(3), R0, K, thetaL);
+  }
+
+
+
+  double logN_0 = out(3); // 0 index  -- store logN to calculate lrg
+  for(int t=T - N_lam + 1; t <= T; t++){
+    arma::vec ee = Env_shift_cpp(t, env_args);
+    arma::vec env(2);
+    env.fill(1.0);
+    env(1)= ee(1);
+
+    double z_bar = arma::as_scalar(X.cols(0,1) * env); 
+    double theta_t = arma::as_scalar(AB * env);
+    gamma = 1 / (Oz2 + Va(env, G) + Ve);
+
+    out = pdIter(len, z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
+		  out(0), out(1), ee(0), ee(1),
+		  G,
+		  out(3), R0, K, thetaL);
+  }
+
+  
+  return (out(3) - logN_0) / N_lam ;  // calculate long run growth rate (logN(T) - logN(0)) / T
 }

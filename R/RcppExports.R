@@ -80,11 +80,6 @@ Env_shift_cpp <- function(t, env_args) {
     .Call('phenoecosim_Env_shift_cpp', PACKAGE = 'phenoecosim', t, env_args)
 }
 
-#' Internal function
-pdIter <- function(len, z_bar, theta_t, Oz2, gamma, A, B, a, b, e_t, e_plast, G, logN, R0, K, thetaL) {
-    .Call('phenoecosim_pdIter', PACKAGE = 'phenoecosim', len, z_bar, theta_t, Oz2, gamma, A, B, a, b, e_t, e_plast, G, logN, R0, K, thetaL)
-}
-
 #' Compute change in fitness over one generation after stabilizing selection
 #' function of environment (after Lande Chevin)
 #' @param t timestep
@@ -129,5 +124,23 @@ pdLande <- function(t, X, params, G, env_args) {
 #' @export
 pdLandeT <- function(T, X, params, G, env_args) {
     .Call('phenoecosim_pdLandeT', PACKAGE = 'phenoecosim', T, X, params, G, env_args)
+}
+
+#' Compute trait + demographic change over over T generations and
+#' long run growth rate over last N_lam generations
+#' under stabilizing selection as 
+#' function of environment (after Lande Chevin)
+#' @param T end time, assuming start time of 1
+#' @param N_lam number of gens over which to compute long-run growth 
+#' @param X parameters (a, b, env, logN)
+#' @param params a list with (Oz2, AB, R0, K, theta)
+#' @param G the (constant) G matrix
+#' @param env_args extra args for env.fn
+#' @details function signature as for use with deSolve
+#' imposes fitness based on Lande
+#' and demography after CL 2010
+#' @export
+pdLandeLRG <- function(T, N_lam, X, params, G, env_args) {
+    .Call('phenoecosim_pdLandeLRG', PACKAGE = 'phenoecosim', T, N_lam, X, params, G, env_args)
 }
 
