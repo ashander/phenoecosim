@@ -134,7 +134,7 @@ Pheno_demo_lande <- function(t, X, p, G,  env.fn, env.args) {
   
   z.bar <- a + b * e.plast
   log.W.bar <- W_bar(z.bar, A + B*env, Oz2, gamma)
-  N <- R_bar(N, R0, exp(log.W.bar), K, thetaL) * N ## demo update based on mean fitness
+  N <- R_bar( R0, exp(log.W.bar)) # for _dd N , K, thetaL) * N ## demo update based on mean fitness
   
   beta <- Beta(gamma, A, B, a, b, env, e.plast)
   X <- c(a, b) + G %*% beta
@@ -179,7 +179,7 @@ Pheno_demo_econ <- function(t, X, p, G,  env.fn, env.args, interv) {
   
   z.bar <- a + b * e.plast
   log.W.bar <- W_bar(z.bar, A + B*env, Oz2, gamma)
-  N <- R_bar(N, R0, exp(log.W.bar), K, thetaL) * N ## demo update based on mean fitness
+  N <- R_bar(R0, exp(log.W.bar)) # for _dd N, K, thetaL) * N ## demo update based on mean fitness
   
   beta <- Beta(gamma, A, B, a, b, env, e.plast)
   X <- c(a, b) + G %*% beta

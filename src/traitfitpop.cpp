@@ -35,18 +35,13 @@ double W_bar (double zbar, double theta, double Oz2, double gamma, bool LOG){
 }
 
 //' Compute population growth rate under stabilizing selection
-//' @param N number of individuals in this generation
 //' @param R0 basic reproductive number
 //' @param Wbar average fitness
-//' @param K carrying capacity
-//' @param thetaL theta-logistic parameter for density dependence
-//' @details Assumes theta-logistic population regulation
-//' would be good to have separate DD function specified after
-//' chevin and lande 2010
+//' @details Assumes density-independent
 //' @export
 // [[Rcpp::export]]
-double  R_bar(double N, double R0, double Wbar, double K, double thetaL){
-    return pow(R0, (1 -pow(N/K, thetaL))) * Wbar;
+double  R_bar (double R0, double Wbar){
+    return R0 * Wbar;
       }
 
 //' Compute LOG population growth rate under stabilizing selection
@@ -57,7 +52,33 @@ double  R_bar(double N, double R0, double Wbar, double K, double thetaL){
 //' chevin and lande 2010
 //' @export
 // [[Rcpp::export]]
-double  Log_R_bar(double N, double R0, double logWbar, double K, double thetaL){
+double  Log_R_bar (double R0, double logWbar){
+  return log(R0) + logWbar;
+      }
+
+//' Compute population growth rate under stabilizing selection
+//' @inheritParams R_bar
+//' @param N number of individuals in this generation
+//' @param K carrying capacity
+//' @param thetaL theta-logistic parameter for density dependence
+//' @details Assumes theta-logistic population regulation
+//' would be good to have separate DD function specified after
+//' chevin and lande 2010
+//' @export
+// [[Rcpp::export]]
+double  R_bar_dd(double R0, double Wbar, double N, double K, double thetaL){
+    return pow(R0, (1 -pow(N/K, thetaL))) * Wbar;
+      }
+
+//' Compute LOG population growth rate under stabilizing selection
+//' @inheritParams R_bar_dd
+//' @param logWbar log average fitness
+//' @details Assumes theta-logistic population regulation
+//' would be good to have separate DD function specified after
+//' chevin and lande 2010
+//' @export
+// [[Rcpp::export]]
+double  Log_R_bar_dd(double R0, double logWbar, double N, double K, double thetaL){
   return log(R0) *(1 -pow(N/K, thetaL)) + logWbar;
       }
 
@@ -141,7 +162,8 @@ arma::rowvec pdIter(int len, double z_bar, double theta_t, double Oz2, double ga
   out(0) += a;
   out(1) += b;
   out(2) = e_t;
-  out(3) = Log_R_bar(exp(logN), R0, log_w_bar, K, thetaL)  + logN; // demo update based on mean fitness
+  out(3) = Log_R_bar(R0, log_w_bar)  + logN; // demo update based on mean fitness
+    //Log_R_bar_dd( R0, log_w_bar, exp(logN), K, thetaL)  + logN; 
   return out;
 }
 
@@ -183,7 +205,8 @@ arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params,
   double theta_t = arma::as_scalar(AB * env);
   double gamma = 1 / (Oz2 + Va(env, G) + Ve);
   arma::rowvec out(3);
-  out(0) = Log_R_bar(exp(X(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL); // mean fitness pre selection
+  out(0) = Log_R_bar( R0, Log_W_bar(z_bar, theta_t, Oz2, gamma)); // mean fitness pre selection
+  //Log_R_bar_dd( R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), exp(X(3)),K, thetaL); 
 
   // selection
   arma::rowvec oneiter =  pdIter(X.size(), z_bar, theta_t, Oz2, gamma, AB(0), AB(1), 
@@ -192,7 +215,8 @@ arma::rowvec pdRespVarLoad (int t, arma::rowvec X, List params,
 		X(3), R0, K, thetaL);
   z_bar = as_scalar(oneiter.cols(0,1) * env); // update mean z based on selection
 
-  out(1) = Log_R_bar(exp(oneiter(3)), R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), K, thetaL) - out(0);
+  out(1) = Log_R_bar(R0, Log_W_bar(z_bar, theta_t, Oz2, gamma)) - out(0);
+  //Log_R_bar_dd( R0, Log_W_bar(z_bar, theta_t, Oz2, gamma), exp(oneiter(3)),K, thetaL) - out(0);
   out(2) = 0.5 * log( 1 + (Va(env, G) + Ve) / Oz2);
   return out;
 }
@@ -362,4 +386,106 @@ double pdLandeLRG (int T, int N_lam, arma::rowvec X, List params,
 
   
   return (out(3) - logN_0) / N_lam ;  // calculate long run growth rate (logN(T) - logN(0)) / T
+}
+
+
+//' Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as 
+//' function of environment (after Lande Chevin)
+//' @param T end time, assuming start time of 1
+//' @param X parameters (z, a, b, wbar, logN, theta)
+//' @param params a list with (Oz2, AB, R0, K, theta)
+//' @param env_args extra args for env.fn
+//' @details NB - for now assume Tchange = 0
+//' and demography after CL 2010
+//' @export
+// [[Rcpp::export]]
+
+// TODO - make above functions consistent with this approach
+arma::mat pdTS (int T, arma::rowvec X, List params, 
+		       List env_args) {
+  // NB - for now assume Tchange = 0
+  // state vars in X (R indexing)
+  // zbar <- X[1]
+  // abar <- X[2] // elevation
+  // bbar <- X[3]  // slope
+  // Wbar <- X[4]
+  // Npop <- X[5]
+  // Theta <- X[6]
+
+  //  double Vz = as<double>(params["Vz"]);
+  double gamma_sh = as<double>(params["gamma_sh"]);
+  //  double rmax = as<double>(params["rmax"]);
+  double omegaz = as<double>(params["omegaz"]);
+  //  arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
+  double A =  as<double>(params["A"]);
+  double B = as<double>(params["B"]);
+  double R0 = as<double>(params["R0"]);
+  double Va = as<double>(params["Va"]);
+  double Vb = as<double>(params["Vb"]);
+  //  double Ve = as<double>(params["Ve"]); // only to compute   double varz; 
+
+  double delta = as<double>(env_args["delta"]);
+  double sigma_xi = as<double>(env_args["sigma_xi"]);
+  double rho_tau = as<double>(env_args["rho_tau"]);
+  double fractgen = as<double>(env_args["fractgen"]);
+
+  double gamma = 0;
+  gamma  = gamma_sh; 
+
+
+  int len = X.size();
+  arma::mat out(len, T + 1);
+  out.col(0) = trans(X); 
+
+  // tmp vars
+  double xi_dev_temp; 
+  double xi_sel_temp; 
+  double eps_sel; 
+  double eps_dev; 
+
+  xi_sel_temp = 0;
+
+  arma::vec all_env = arma::randn((T + 1) * fractgen);    
+  int env_ctr = 0; 
+
+  all_env = all_env * sigma_xi;  // scale noise
+
+  for(int t=0; t <= T; t++) {
+
+    if (t == 0)
+      xi_dev_temp = 0;
+    else
+      xi_dev_temp = xi_sel_temp;
+
+    for(int i=1; i < fractgen; i++) {
+      xi_dev_temp = rho_tau * xi_dev_temp + sqrt(1 - pow(rho_tau, 2)) * all_env(env_ctr); // make drawenv
+      env_ctr = env_ctr + 1; 
+    }
+    
+
+    xi_sel_temp =  rho_tau * xi_dev_temp + sqrt(1 - pow(rho_tau, 2)) * all_env(env_ctr); // make drawenv
+    env_ctr = env_ctr + 1; 
+
+    //##    computing the corresponding mean/variance genetic values, and optimal environmen  
+    eps_dev =  delta + xi_dev_temp; // ##xi_temp = xi_dev
+    eps_sel =  delta +  xi_sel_temp; 
+    
+    
+    out(0 , t) =     out(1, t) + out(2, t) * eps_dev; // zbar = abar + bbar * eps_dev
+    //    varz <- Va + 2 * Vab * eps_dev + Vb * pow(eps_dev, 2) + Ve;
+    out(5, t) = A + B * eps_sel; //Theta
+    //        ## evolutionary change with and population growth
+    out(3, t) = R0 *  sqrt(gamma * pow(omegaz, 2)) * exp(-gamma / 2 *  pow(out(0, t) - out(5, t), 2)); // Wbar= f( zbar - theta)
+    
+    //##  in R version increment here to update the vars with init conditions already filled in
+    //    t = t + 1;
+
+    if(t < T) {
+      
+      out(1, t + 1) = out(1, t) - gamma * (out(0, t) - out(5, t)) * Va; // abar = abar - gamma(zbar - theta) * Va
+      out(2, t + 1) =    out(2, t) - gamma * (out(0, t) - out(5, t)) * eps_dev * Vb ; // bbar = bbar - gamma (zbar - theta) eps_dev Vb
+      out(4, t + 1) = out(4, t) * out(3, t); // N = N * wbar
+    }
+  }
+  return out;
 }

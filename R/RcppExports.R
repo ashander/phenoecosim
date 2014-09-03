@@ -22,17 +22,12 @@ W_bar <- function(zbar, theta, Oz2, gamma, LOG) {
 }
 
 #' Compute population growth rate under stabilizing selection
-#' @param N number of individuals in this generation
 #' @param R0 basic reproductive number
 #' @param Wbar average fitness
-#' @param K carrying capacity
-#' @param thetaL theta-logistic parameter for density dependence
-#' @details Assumes theta-logistic population regulation
-#' would be good to have separate DD function specified after
-#' chevin and lande 2010
+#' @details Assumes density-independent
 #' @export
-R_bar <- function(N, R0, Wbar, K, thetaL) {
-    .Call('phenoecosim_R_bar', PACKAGE = 'phenoecosim', N, R0, Wbar, K, thetaL)
+R_bar <- function(R0, Wbar) {
+    .Call('phenoecosim_R_bar', PACKAGE = 'phenoecosim', R0, Wbar)
 }
 
 #' Compute LOG population growth rate under stabilizing selection
@@ -42,8 +37,32 @@ R_bar <- function(N, R0, Wbar, K, thetaL) {
 #' would be good to have separate DD function specified after
 #' chevin and lande 2010
 #' @export
-Log_R_bar <- function(N, R0, logWbar, K, thetaL) {
-    .Call('phenoecosim_Log_R_bar', PACKAGE = 'phenoecosim', N, R0, logWbar, K, thetaL)
+Log_R_bar <- function(R0, logWbar) {
+    .Call('phenoecosim_Log_R_bar', PACKAGE = 'phenoecosim', R0, logWbar)
+}
+
+#' Compute population growth rate under stabilizing selection
+#' @inheritParams R_bar
+#' @param N number of individuals in this generation
+#' @param K carrying capacity
+#' @param thetaL theta-logistic parameter for density dependence
+#' @details Assumes theta-logistic population regulation
+#' would be good to have separate DD function specified after
+#' chevin and lande 2010
+#' @export
+R_bar_dd <- function(R0, Wbar, N, K, thetaL) {
+    .Call('phenoecosim_R_bar_dd', PACKAGE = 'phenoecosim', R0, Wbar, N, K, thetaL)
+}
+
+#' Compute LOG population growth rate under stabilizing selection
+#' @inheritParams R_bar_dd
+#' @param logWbar log average fitness
+#' @details Assumes theta-logistic population regulation
+#' would be good to have separate DD function specified after
+#' chevin and lande 2010
+#' @export
+Log_R_bar_dd <- function(R0, logWbar, N, K, thetaL) {
+    .Call('phenoecosim_Log_R_bar_dd', PACKAGE = 'phenoecosim', R0, logWbar, N, K, thetaL)
 }
 
 #' Selection on plasticity as as function of environment assuming stabilizing selection
@@ -131,7 +150,7 @@ pdLandeT <- function(T, X, params, G, env_args) {
 #' under stabilizing selection as 
 #' function of environment (after Lande Chevin)
 #' @param T end time, assuming start time of 1
-#' @param N_lam number of gens over which to compute long-run growth 
+#' @param N_lam number of gens over which to compute long-run growth  -- must be less than T
 #' @param X parameters (a, b, env, logN)
 #' @param params a list with (Oz2, AB, R0, K, theta)
 #' @param G the (constant) G matrix
@@ -142,5 +161,18 @@ pdLandeT <- function(T, X, params, G, env_args) {
 #' @export
 pdLandeLRG <- function(T, N_lam, X, params, G, env_args) {
     .Call('phenoecosim_pdLandeLRG', PACKAGE = 'phenoecosim', T, N_lam, X, params, G, env_args)
+}
+
+#' Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as 
+#' function of environment (after Lande Chevin)
+#' @param T end time, assuming start time of 1
+#' @param X parameters (z, a, b, wbar, logN, theta)
+#' @param params a list with (Oz2, AB, R0, K, theta)
+#' @param env_args extra args for env.fn
+#' @details NB - for now assume Tchange = 0
+#' and demography after CL 2010
+#' @export
+pdTS <- function(T, X, params, env_args) {
+    .Call('phenoecosim_pdTS', PACKAGE = 'phenoecosim', T, X, params, env_args)
 }
 

@@ -44,18 +44,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // R_bar
-double R_bar(double N, double R0, double Wbar, double K, double thetaL);
-RcppExport SEXP phenoecosim_R_bar(SEXP NSEXP, SEXP R0SEXP, SEXP WbarSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
+double R_bar(double R0, double Wbar);
+RcppExport SEXP phenoecosim_R_bar(SEXP R0SEXP, SEXP WbarSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type N(NSEXP );
         Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
         Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP );
-        Rcpp::traits::input_parameter< double >::type K(KSEXP );
-        Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP );
-        double __result = R_bar(N, R0, Wbar, K, thetaL);
+        double __result = R_bar(R0, Wbar);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -63,18 +60,53 @@ BEGIN_RCPP
 END_RCPP
 }
 // Log_R_bar
-double Log_R_bar(double N, double R0, double logWbar, double K, double thetaL);
-RcppExport SEXP phenoecosim_Log_R_bar(SEXP NSEXP, SEXP R0SEXP, SEXP logWbarSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
+double Log_R_bar(double R0, double logWbar);
+RcppExport SEXP phenoecosim_Log_R_bar(SEXP R0SEXP, SEXP logWbarSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type N(NSEXP );
         Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
         Rcpp::traits::input_parameter< double >::type logWbar(logWbarSEXP );
+        double __result = Log_R_bar(R0, logWbar);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// R_bar_dd
+double R_bar_dd(double R0, double Wbar, double N, double K, double thetaL);
+RcppExport SEXP phenoecosim_R_bar_dd(SEXP R0SEXP, SEXP WbarSEXP, SEXP NSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
+        Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP );
+        Rcpp::traits::input_parameter< double >::type N(NSEXP );
         Rcpp::traits::input_parameter< double >::type K(KSEXP );
         Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP );
-        double __result = Log_R_bar(N, R0, logWbar, K, thetaL);
+        double __result = R_bar_dd(R0, Wbar, N, K, thetaL);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// Log_R_bar_dd
+double Log_R_bar_dd(double R0, double logWbar, double N, double K, double thetaL);
+RcppExport SEXP phenoecosim_Log_R_bar_dd(SEXP R0SEXP, SEXP logWbarSEXP, SEXP NSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
+        Rcpp::traits::input_parameter< double >::type logWbar(logWbarSEXP );
+        Rcpp::traits::input_parameter< double >::type N(NSEXP );
+        Rcpp::traits::input_parameter< double >::type K(KSEXP );
+        Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP );
+        double __result = Log_R_bar_dd(R0, logWbar, N, K, thetaL);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -205,6 +237,24 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP );
         Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
         double __result = pdLandeLRG(T, N_lam, X, params, G, env_args);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// pdTS
+arma::mat pdTS(int T, arma::rowvec X, List params, List env_args);
+RcppExport SEXP phenoecosim_pdTS(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< int >::type T(TSEXP );
+        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
+        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
+        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
+        arma::mat __result = pdTS(T, X, params, env_args);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
