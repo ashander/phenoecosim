@@ -54,17 +54,6 @@ R_bar_dd <- function(R0, Wbar, N, K, thetaL) {
     .Call('phenoecosim_R_bar_dd', PACKAGE = 'phenoecosim', R0, Wbar, N, K, thetaL)
 }
 
-#' Compute LOG population growth rate under stabilizing selection
-#' @inheritParams R_bar_dd
-#' @param logWbar log average fitness
-#' @details Assumes theta-logistic population regulation
-#' would be good to have separate DD function specified after
-#' chevin and lande 2010
-#' @export
-Log_R_bar_dd <- function(R0, logWbar, N, K, thetaL) {
-    .Call('phenoecosim_Log_R_bar_dd', PACKAGE = 'phenoecosim', R0, logWbar, N, K, thetaL)
-}
-
 #' Selection on plasticity as as function of environment assuming stabilizing selection
 #' @param gamma = 1/(Oz2 + Vz2), with Vz2 phenotypic variance
 #' @param A the environmental optimum RN int
@@ -99,78 +88,13 @@ Env_shift_cpp <- function(t, env_args) {
     .Call('phenoecosim_Env_shift_cpp', PACKAGE = 'phenoecosim', t, env_args)
 }
 
-#' Compute change in fitness over one generation after stabilizing selection
-#' function of environment (after Lande Chevin)
-#' @param t timestep
-#' @param X parameters (a, b, env, logN)
-#' @param params a list with (Oz2, AB, R0, K, theta)
-#' @param G the (constant) G matrix
-#' @param env_args extra args for env.fn
-#' @details function signature as for use with deSolve
-#' imposes fitness based on Lande
-#' and demography after CL 2010
-#' @return rowvector: log R bar, delta R bar, variance load
-#' @export
-pdRespVarLoad <- function(t, X, params, G, env_args) {
-    .Call('phenoecosim_pdRespVarLoad', PACKAGE = 'phenoecosim', t, X, params, G, env_args)
-}
-
-#' Compute trait + demographic change over one generation under stabilizing selection as 
-#' function of environment (after Lande Chevin)
-#' @param t timestep
-#' @param X parameters (a, b, env, logN)
-#' @param params a list with (Oz2, AB, R0, K, theta)
-#' @param G the (constant) G matrix
-#' @param env_args extra args for env.fn
-#' @details function signature as for use with deSolve
-#' imposes fitness based on Lande
-#' and demography after CL 2010
-#' @export
-pdLande <- function(t, X, params, G, env_args) {
-    .Call('phenoecosim_pdLande', PACKAGE = 'phenoecosim', t, X, params, G, env_args)
-}
-
-#' Compute trait + demographic change over T generations under stabilizing selection as 
-#' function of environment (after Lande Chevin)
-#' @param T end time, assuming start time of 1
-#' @param X parameters (a, b, env, logN)
-#' @param params a list with (Oz2, AB, R0, K, theta)
-#' @param G the (constant) G matrix
-#' @param env_args extra args for env.fn
-#' @details function signature as for use with deSolve
-#' imposes fitness based on Lande
-#' and demography after CL 2010
-#' @export
-pdLandeT <- function(T, X, params, G, env_args) {
-    .Call('phenoecosim_pdLandeT', PACKAGE = 'phenoecosim', T, X, params, G, env_args)
-}
-
-#' Compute trait + demographic change over over T generations and
-#' long run growth rate over last N_lam generations
-#' under stabilizing selection as 
-#' function of environment (after Lande Chevin)
-#' @param T end time, assuming start time of 1
-#' @param N_lam number of gens over which to compute long-run growth  -- must be less than T
-#' @param X parameters (a, b, env, logN)
-#' @param params a list with (Oz2, AB, R0, K, theta)
-#' @param G the (constant) G matrix
-#' @param env_args extra args for env.fn
-#' @details function signature as for use with deSolve
-#' imposes fitness based on Lande
-#' and demography after CL 2010
-#' @export
-pdLandeLRG <- function(T, N_lam, X, params, G, env_args) {
-    .Call('phenoecosim_pdLandeLRG', PACKAGE = 'phenoecosim', T, N_lam, X, params, G, env_args)
-}
-
 #' Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as 
 #' function of environment (after Lande Chevin)
 #' @param T end time, assuming start time of 1
 #' @param X parameters (z, a, b, wbar, logN, theta)
-#' @param params a list with (Oz2, AB, R0, K, theta)
+#' @param params a list with (gamma_sh, omegaz, A, B, R0, Va, Vb, delta, sigma_xi, rho_tau, fractgen)
 #' @param env_args extra args for env.fn
-#' @details NB - for now assume Tchange = 0
-#' and demography after CL 2010
+#' @details NB - for now assume Tchange = 0 and demography after CL 2010
 #' @export
 pdTS <- function(T, X, params, env_args) {
     .Call('phenoecosim_pdTS', PACKAGE = 'phenoecosim', T, X, params, env_args)

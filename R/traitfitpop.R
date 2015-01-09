@@ -56,8 +56,8 @@ Pheno_lande <- function(t, X, p, G, env.fn, env.args) {
   X <- c(a, b) + G %*% beta
   va <- Va(e.plast, G) 
   list(c(X, env, z.bar, va))
-
 }
+
 #' Compute trait + demographic change under stabilizing selection as function of environment
 #' @param t timestep
 #' @param X parameters (a, b, env, N)

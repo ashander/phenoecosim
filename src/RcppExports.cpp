@@ -94,25 +94,6 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// Log_R_bar_dd
-double Log_R_bar_dd(double R0, double logWbar, double N, double K, double thetaL);
-RcppExport SEXP phenoecosim_Log_R_bar_dd(SEXP R0SEXP, SEXP logWbarSEXP, SEXP NSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
-        Rcpp::traits::input_parameter< double >::type logWbar(logWbarSEXP );
-        Rcpp::traits::input_parameter< double >::type N(NSEXP );
-        Rcpp::traits::input_parameter< double >::type K(KSEXP );
-        Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP );
-        double __result = Log_R_bar_dd(R0, logWbar, N, K, thetaL);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // Beta
 arma::vec Beta(double gamma, double A, double B, double a, double b, double e_t, double e_plast);
 RcppExport SEXP phenoecosim_Beta(SEXP gammaSEXP, SEXP ASEXP, SEXP BSEXP, SEXP aSEXP, SEXP bSEXP, SEXP e_tSEXP, SEXP e_plastSEXP) {
@@ -160,83 +141,6 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< int >::type t(tSEXP );
         Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
         arma::vec __result = Env_shift_cpp(t, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// pdRespVarLoad
-arma::rowvec pdRespVarLoad(int t, arma::rowvec X, List params, arma::mat G, List env_args);
-RcppExport SEXP phenoecosim_pdRespVarLoad(SEXP tSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP GSEXP, SEXP env_argsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type t(tSEXP );
-        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
-        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        arma::rowvec __result = pdRespVarLoad(t, X, params, G, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// pdLande
-arma::rowvec pdLande(int t, arma::rowvec X, List params, arma::mat G, List env_args);
-RcppExport SEXP phenoecosim_pdLande(SEXP tSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP GSEXP, SEXP env_argsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type t(tSEXP );
-        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
-        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        arma::rowvec __result = pdLande(t, X, params, G, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// pdLandeT
-arma::rowvec pdLandeT(int T, arma::rowvec X, List params, arma::mat G, List env_args);
-RcppExport SEXP phenoecosim_pdLandeT(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP GSEXP, SEXP env_argsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type T(TSEXP );
-        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
-        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        arma::rowvec __result = pdLandeT(T, X, params, G, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// pdLandeLRG
-double pdLandeLRG(int T, int N_lam, arma::rowvec X, List params, arma::mat G, List env_args);
-RcppExport SEXP phenoecosim_pdLandeLRG(SEXP TSEXP, SEXP N_lamSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP GSEXP, SEXP env_argsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type T(TSEXP );
-        Rcpp::traits::input_parameter< int >::type N_lam(N_lamSEXP );
-        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
-        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type G(GSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        double __result = pdLandeLRG(T, N_lam, X, params, G, env_args);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
