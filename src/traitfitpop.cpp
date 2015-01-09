@@ -393,16 +393,15 @@ double pdLandeLRG (int T, int N_lam, arma::rowvec X, List params,
 //' function of environment (after Lande Chevin)
 //' @param T end time, assuming start time of 1
 //' @param X parameters (z, a, b, wbar, logN, theta)
-//' @param params a list with (Oz2, AB, R0, K, theta)
+//' @param params a list with (gamma_sh, omegaz, A, B, R0, Va, Vb, delta, sigma_xi, rho_tau, fractgen)
 //' @param env_args extra args for env.fn
-//' @details NB - for now assume Tchange = 0
-//' and demography after CL 2010
+//' @details NB - for now assume Tchange = 0 and demography after CL 2010
 //' @export
 // [[Rcpp::export]]
 
-// TODO - make above functions consistent with this approach
 arma::mat pdTS (int T, arma::rowvec X, List params, 
 		       List env_args) {
+  // TODO - make above functions consistent with this approach
   // NB - for now assume Tchange = 0
   // state vars in X (R indexing)
   // zbar <- X[1]
@@ -412,17 +411,23 @@ arma::mat pdTS (int T, arma::rowvec X, List params,
   // Npop <- X[5]
   // Theta <- X[6]
 
-  //  double Vz = as<double>(params["Vz"]);
+  //tmp vars for bio
+  double zbart;
+  double abart; 
+  double bbart;
+  double wbart;
+  double Nt;
+  double thetat;
+  double betat;
+
+
   double gamma_sh = as<double>(params["gamma_sh"]);
-  //  double rmax = as<double>(params["rmax"]);
   double omegaz = as<double>(params["omegaz"]);
-  //  arma::rowvec AB = as<arma::rowvec>(params["AB"]);// or set size first? AB(2);
   double A =  as<double>(params["A"]);
   double B = as<double>(params["B"]);
   double R0 = as<double>(params["R0"]);
   double Va = as<double>(params["Va"]);
   double Vb = as<double>(params["Vb"]);
-  //  double Ve = as<double>(params["Ve"]); // only to compute   double varz; 
 
   double delta = as<double>(env_args["delta"]);
   double sigma_xi = as<double>(env_args["sigma_xi"]);
@@ -431,19 +436,18 @@ arma::mat pdTS (int T, arma::rowvec X, List params,
 
   double gamma = 0;
   gamma  = gamma_sh; 
-
-
+  
   int len = X.size();
   arma::mat out(len, T + 1);
   out.col(0) = trans(X); 
 
-  // tmp vars
+  // tmp vars for env
   double xi_dev_temp; 
   double xi_sel_temp; 
   double eps_sel; 
   double eps_dev; 
 
-  xi_sel_temp = 0;
+   xi_sel_temp = 0;
 
   arma::vec all_env = arma::randn((T + 1) * fractgen);    
   int env_ctr = 0; 
@@ -470,21 +474,28 @@ arma::mat pdTS (int T, arma::rowvec X, List params,
     eps_dev =  delta + xi_dev_temp; // ##xi_temp = xi_dev
     eps_sel =  delta +  xi_sel_temp; 
     
-    
-    out(0 , t) =     out(1, t) + out(2, t) * eps_dev; // zbar = abar + bbar * eps_dev
+    abart = out(1, t);
+    bbart = out(2, t);
+    zbart =     abart + bbart * eps_dev; // zbar = abar + bbar * eps_dev
+    out(0, t) = zbart;
     //    varz <- Va + 2 * Vab * eps_dev + Vb * pow(eps_dev, 2) + Ve;
-    out(5, t) = A + B * eps_sel; //Theta
+    thetat = A + B * eps_sel; //Theta
+    out(5, t) = thetat; 
     //        ## evolutionary change with and population growth
-    out(3, t) = R0 *  sqrt(gamma * pow(omegaz, 2)) * exp(-gamma / 2 *  pow(out(0, t) - out(5, t), 2)); // Wbar= f( zbar - theta)
+    wbart = R0 *  sqrt(gamma * pow(omegaz, 2)) * exp(-gamma / 2 *  pow(zbart - thetat, 2)); 
+    out(3, t) = wbart;
+    // Wbar= f( zbar - theta)
     
     //##  in R version increment here to update the vars with init conditions already filled in
     //    t = t + 1;
 
     if(t < T) {
-      
-      out(1, t + 1) = out(1, t) - gamma * (out(0, t) - out(5, t)) * Va; // abar = abar - gamma(zbar - theta) * Va
-      out(2, t + 1) =    out(2, t) - gamma * (out(0, t) - out(5, t)) * eps_dev * Vb ; // bbar = bbar - gamma (zbar - theta) eps_dev Vb
-      out(4, t + 1) = out(4, t) * out(3, t); // N = N * wbar
+      betat = gamma * (zbart - thetat);
+      // abar = abar - gamma(zbar - theta) * Va
+      out(1, t + 1) = abart - betat * Va; 
+      // bbar = bbar - gamma (zbar - theta) eps_dev Vb
+      out(2, t + 1) =    bbart - betat * eps_dev * Vb ; 
+      out(4, t + 1) = out(4, t) * wbart; // N = N * wbar
     }
   }
   return out;
