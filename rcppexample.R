@@ -66,10 +66,12 @@ double testarma(arma::vec x, arma::rowvec y) {
   }')
 
 ## package: 
-## to get started see
+## The “Rcpp-package” vignette documents how to use Rcpp in client     packages.
+## to get started also see
 ## Rcpp::compileAttributes
 ## and
 ## Rcpp::Rcpp.package.skeleton (or  Rcpp::RcppArmadillo.package.skeleton if using arma)
+
 
 ## more examples 
 library(Rcpp)
