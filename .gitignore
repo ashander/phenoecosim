@@ -1,1 +1,7 @@
 .Rhistory
+*.rds
+..Rcheck
+*.o
+*.so
+.\#*
+\#*\#

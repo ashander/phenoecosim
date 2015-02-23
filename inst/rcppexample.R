@@ -27,8 +27,10 @@ cppFunction('double testarma(arma::vec x, arma::rowvec y) {
 
 ## I get one warning:
 ## ld: warning: directory '/usr/local/lib/x86_64' following -L not found
+## os x 10.10
+## ld: warning: directory not found for option '-L/usr/local/lib/gcc/x86_64-apple-darwin13.0.0/4.8.2'
 testarma(1:2, 2:3)
-
+# 8
 
 ## below also works with  sessionInfo() as above (this code is example from ?Rcpp::cppFunction)
 cppFunction(depends = "RcppArmadillo",
@@ -112,6 +114,10 @@ Rcpp::NumericVector colNorm(Rcpp::NumericMatrix sM) {
     return n;				// return vector  
 }')
 
+
+## fails on 10.10 with
+## Error in if (file.exists(pkgHeaderPath)) { : argument is of length zero
+##  Calls: cppFunction -> .linkingToIncludes
 code <- '
     arma::mat GG = Rcpp::as<arma::mat>(G);
     arma::colvec env = Rcpp::as<arma::colvec>(e);

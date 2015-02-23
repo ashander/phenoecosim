@@ -7,161 +7,111 @@
 using namespace Rcpp;
 
 // Log_W_bar
-double Log_W_bar(double zbar, double theta, double Oz2, double gamma);
-RcppExport SEXP phenoecosim_Log_W_bar(SEXP zbarSEXP, SEXP thetaSEXP, SEXP Oz2SEXP, SEXP gammaSEXP) {
+double Log_W_bar(double zbar, double theta, double oz2, double gamma);
+RcppExport SEXP phenoecosim_Log_W_bar(SEXP zbarSEXP, SEXP thetaSEXP, SEXP oz2SEXP, SEXP gammaSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type zbar(zbarSEXP );
-        Rcpp::traits::input_parameter< double >::type theta(thetaSEXP );
-        Rcpp::traits::input_parameter< double >::type Oz2(Oz2SEXP );
-        Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP );
-        double __result = Log_W_bar(zbar, theta, Oz2, gamma);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type zbar(zbarSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type oz2(oz2SEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    __result = Rcpp::wrap(Log_W_bar(zbar, theta, oz2, gamma));
+    return __result;
 END_RCPP
 }
 // W_bar
-double W_bar(double zbar, double theta, double Oz2, double gamma, bool LOG);
-RcppExport SEXP phenoecosim_W_bar(SEXP zbarSEXP, SEXP thetaSEXP, SEXP Oz2SEXP, SEXP gammaSEXP, SEXP LOGSEXP) {
+double W_bar(double zbar, double theta, double oz2, double gamma, bool LOG);
+RcppExport SEXP phenoecosim_W_bar(SEXP zbarSEXP, SEXP thetaSEXP, SEXP oz2SEXP, SEXP gammaSEXP, SEXP LOGSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type zbar(zbarSEXP );
-        Rcpp::traits::input_parameter< double >::type theta(thetaSEXP );
-        Rcpp::traits::input_parameter< double >::type Oz2(Oz2SEXP );
-        Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP );
-        Rcpp::traits::input_parameter< bool >::type LOG(LOGSEXP );
-        double __result = W_bar(zbar, theta, Oz2, gamma, LOG);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type zbar(zbarSEXP);
+    Rcpp::traits::input_parameter< double >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< double >::type oz2(oz2SEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< bool >::type LOG(LOGSEXP);
+    __result = Rcpp::wrap(W_bar(zbar, theta, oz2, gamma, LOG));
+    return __result;
 END_RCPP
 }
 // R_bar
-double R_bar(double R0, double Wbar);
-RcppExport SEXP phenoecosim_R_bar(SEXP R0SEXP, SEXP WbarSEXP) {
+double R_bar(double R0, double Wbar, double N);
+RcppExport SEXP phenoecosim_R_bar(SEXP R0SEXP, SEXP WbarSEXP, SEXP NSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
-        Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP );
-        double __result = R_bar(R0, Wbar);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP);
+    Rcpp::traits::input_parameter< double >::type N(NSEXP);
+    __result = Rcpp::wrap(R_bar(R0, Wbar, N));
+    return __result;
 END_RCPP
 }
-// Log_R_bar
-double Log_R_bar(double R0, double logWbar);
-RcppExport SEXP phenoecosim_Log_R_bar(SEXP R0SEXP, SEXP logWbarSEXP) {
+// R_bar_ceiling
+double R_bar_ceiling(double R0, double Wbar, double N, double K);
+RcppExport SEXP phenoecosim_R_bar_ceiling(SEXP R0SEXP, SEXP WbarSEXP, SEXP NSEXP, SEXP KSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
-        Rcpp::traits::input_parameter< double >::type logWbar(logWbarSEXP );
-        double __result = Log_R_bar(R0, logWbar);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP);
+    Rcpp::traits::input_parameter< double >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type K(KSEXP);
+    __result = Rcpp::wrap(R_bar_ceiling(R0, Wbar, N, K));
+    return __result;
 END_RCPP
 }
-// R_bar_dd
-double R_bar_dd(double R0, double Wbar, double N, double K, double thetaL);
-RcppExport SEXP phenoecosim_R_bar_dd(SEXP R0SEXP, SEXP WbarSEXP, SEXP NSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
+// R_bar_thetalog
+double R_bar_thetalog(double R0, double Wbar, double N, double K, double thetaL);
+RcppExport SEXP phenoecosim_R_bar_thetalog(SEXP R0SEXP, SEXP WbarSEXP, SEXP NSEXP, SEXP KSEXP, SEXP thetaLSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type R0(R0SEXP );
-        Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP );
-        Rcpp::traits::input_parameter< double >::type N(NSEXP );
-        Rcpp::traits::input_parameter< double >::type K(KSEXP );
-        Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP );
-        double __result = R_bar_dd(R0, Wbar, N, K, thetaL);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// Beta
-arma::vec Beta(double gamma, double A, double B, double a, double b, double e_t, double e_plast);
-RcppExport SEXP phenoecosim_Beta(SEXP gammaSEXP, SEXP ASEXP, SEXP BSEXP, SEXP aSEXP, SEXP bSEXP, SEXP e_tSEXP, SEXP e_plastSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP );
-        Rcpp::traits::input_parameter< double >::type A(ASEXP );
-        Rcpp::traits::input_parameter< double >::type B(BSEXP );
-        Rcpp::traits::input_parameter< double >::type a(aSEXP );
-        Rcpp::traits::input_parameter< double >::type b(bSEXP );
-        Rcpp::traits::input_parameter< double >::type e_t(e_tSEXP );
-        Rcpp::traits::input_parameter< double >::type e_plast(e_plastSEXP );
-        arma::vec __result = Beta(gamma, A, B, a, b, e_t, e_plast);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    Rcpp::traits::input_parameter< double >::type Wbar(WbarSEXP);
+    Rcpp::traits::input_parameter< double >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type K(KSEXP);
+    Rcpp::traits::input_parameter< double >::type thetaL(thetaLSEXP);
+    __result = Rcpp::wrap(R_bar_thetalog(R0, Wbar, N, K, thetaL));
+    return __result;
 END_RCPP
 }
 // Va
 double Va(arma::vec env, arma::mat GG);
 RcppExport SEXP phenoecosim_Va(SEXP envSEXP, SEXP GGSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< arma::vec >::type env(envSEXP );
-        Rcpp::traits::input_parameter< arma::mat >::type GG(GGSEXP );
-        double __result = Va(env, GG);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< arma::vec >::type env(envSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type GG(GGSEXP);
+    __result = Rcpp::wrap(Va(env, GG));
+    return __result;
 END_RCPP
 }
-// Env_shift_cpp
-arma::vec Env_shift_cpp(int t, List env_args);
-RcppExport SEXP phenoecosim_Env_shift_cpp(SEXP tSEXP, SEXP env_argsSEXP) {
+// make_env
+arma::mat make_env(int T, List env_args);
+RcppExport SEXP phenoecosim_make_env(SEXP TSEXP, SEXP env_argsSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type t(tSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        arma::vec __result = Env_shift_cpp(t, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type T(TSEXP);
+    Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP);
+    __result = Rcpp::wrap(make_env(T, env_args));
+    return __result;
 END_RCPP
 }
-// pdTS
-arma::mat pdTS(int T, arma::rowvec X, List params, List env_args);
-RcppExport SEXP phenoecosim_pdTS(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP) {
+// simulate_pheno_ts
+arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params, List env_args);
+RcppExport SEXP phenoecosim_simulate_pheno_ts(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type T(TSEXP );
-        Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP );
-        Rcpp::traits::input_parameter< List >::type params(paramsSEXP );
-        Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP );
-        arma::mat __result = pdTS(T, X, params, env_args);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type T(TSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type X(XSEXP);
+    Rcpp::traits::input_parameter< List >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP);
+    __result = Rcpp::wrap(simulate_pheno_ts(T, X, params, env_args));
+    return __result;
 END_RCPP
 }

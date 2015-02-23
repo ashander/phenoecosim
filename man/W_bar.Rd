@@ -3,16 +3,16 @@
 \alias{W_bar}
 \title{Compute mean fitness under stabilizing selection}
 \usage{
-W_bar(zbar, theta, Oz2, gamma, LOG)
+W_bar(zbar, theta, oz2, gamma, LOG)
 }
 \arguments{
 \item{zbar}{mean trait prior to selection}
 
 \item{theta}{enironmental optimum}
 
-\item{Oz2}{strength of stabilizing selection}
+\item{oz2}{strength of stabilizing selection}
 
-\item{gamma}{1/(Oz2 + Vz2), with Vz2 phenotypic variance}
+\item{gamma}{1/(oz2 + Vz2), with Vz2 phenotypic variance}
 
 \item{LOG}{(=TRUE) whether to return the log of fitness}
 }
@@ -20,6 +20,6 @@ W_bar(zbar, theta, Oz2, gamma, LOG)
 Compute mean fitness under stabilizing selection
 }
 \details{
-no details
+IN USE
 }
 
