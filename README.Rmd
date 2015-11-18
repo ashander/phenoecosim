@@ -5,8 +5,13 @@ phenoecosim
 
 Jaime Ashander and Luis-Miguel Chevin
 
+
 Simulate evolutionary, plastic, and ecological responses to
 changing environments, including discrete shifts and constantly
 moving optima.
 
 Built with [Armadillo](http://arma.sourceforge.net/) and [Rcpp](http://www.rcpp.org/) (via RcppArmadillo package).
+
+Please cite as
+
+ Jaime Ashander and Luis-Miguel Chevin (2015). phenoecosim: Simulations of eco-evo trait and demographic dynamics under changing environments.  R package version v0.1.0. [![DOI](https://zenodo.org/badge/17403/ashander/phenoecosim.svg)](https://zenodo.org/badge/latestdoi/17403/ashander/phenoecosim)
