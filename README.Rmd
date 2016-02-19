@@ -15,3 +15,18 @@ Built with [Armadillo](http://arma.sourceforge.net/) and [Rcpp](http://www.rcpp.
 Please cite as
 
  Jaime Ashander and Luis-Miguel Chevin (2015). phenoecosim: Simulations of eco-evo trait and demographic dynamics under changing environments.  R package version v0.1.0. [![DOI](https://zenodo.org/badge/17403/ashander/phenoecosim.svg)](https://zenodo.org/badge/latestdoi/17403/ashander/phenoecosim)
+
+
+### Running in docker
+
+This package includes a Dockerfile built on top of the rocker/rstudio image.
+We have also hosted the image on dockerhub, so you can easily get an Rstudio
+server setup for development running on the cloud:
+
+```bash
+docker run -d -p 80:8787 -e USER=<username> -e PASSWORD=<password> ashander/phenoecosim
+```
+
+Navigating to the public DNS of the server will give you an Rstudio login screen.
+
+For further details [see the rocker wiki](https://github.com/rocker-org/rocker/wiki/Using-the-RStudio-image)
