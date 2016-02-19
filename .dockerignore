@@ -1,0 +1,6 @@
+README*
+.git
+inst
+*.sh
+vignettes
+*.swp
