@@ -8,3 +8,5 @@ WORKDIR /home/rstudio
 
 RUN git clone https://github.com/ashander/phenoecosim \
     && R -e "devtools::install_local('phenoecosim')"
+
+USER root
