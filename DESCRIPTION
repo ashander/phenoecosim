@@ -4,16 +4,18 @@ Description: A set of codes to simulate evolutionary, plastic and ecological
     constantly moving optima
 Title: Simulations of eco-evo trait and demographic dynamics under changing
     environments
-Version: 0.1.0
-Date: 2015-11-17
+Version: 0.2.0
+Date: 2016-04-11
 Authors@R: c(person("Jaime", "Ashander", role = c("aut", "cre"), email=
     "jashander@ucdavis.edu"), person("Luis-Miguel", "Chevin", role=c("aut"),
     email="luis-miguel.chevin@cefe.cnrs.fr"))
 Depends:
     RcppArmadillo (>= 0.4.3)
 Imports:
-    Rcpp
+    Rcpp,
+    dplyr
 LinkingTo: Rcpp, RcppArmadillo
 License: MIT
 Suggests:
     testthat
+RoxygenNote: 5.0.1

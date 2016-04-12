@@ -89,6 +89,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// Env_shift_cpp
+arma::vec Env_shift_cpp(int t, List env_args);
+RcppExport SEXP phenoecosim_Env_shift_cpp(SEXP tSEXP, SEXP env_argsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< int >::type t(tSEXP);
+    Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP);
+    __result = Rcpp::wrap(Env_shift_cpp(t, env_args));
+    return __result;
+END_RCPP
+}
 // make_env
 arma::mat make_env(int T, List env_args);
 RcppExport SEXP phenoecosim_make_env(SEXP TSEXP, SEXP env_argsSEXP) {

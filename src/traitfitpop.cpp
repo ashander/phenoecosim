@@ -94,6 +94,8 @@ double Va(arma::vec env, arma::mat GG){
 //' sd noise in env
 //' sdc noise in cue
 //' @details nada
+//' @export
+// [[Rcpp::export]]
 arma::vec Env_shift_cpp(int t, List env_args) {
 	// returns (selection env, cue env)
 	double t_jump = as<double>(env_args["t.jump"]);
