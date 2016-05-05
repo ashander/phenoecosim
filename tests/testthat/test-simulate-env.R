@@ -12,6 +12,7 @@ for(rho in 1:8 * 0.1) {
         env_dev_sel = make_env(T=max_T, env_args=env.list)
         par_names <- paste0(paste(names(env.list), env.list, sep='='), collapse=',')
         test_that(paste("Environmental simulation produces expected correlations, mean, sd for", par_names), {
+                    set.seed(99999)
           envcor <- cor(env_dev_sel[1, start_T:max_T], env_dev_sel[2,  start_T:max_T])
           envmeans <- rowMeans(env_dev_sel)
           envsd <- apply(env_dev_sel, 1, sd)
