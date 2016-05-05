@@ -12,8 +12,6 @@ R_bar(R0, Wbar, N)
 \item{Wbar}{average fitness}
 
 \item{N}{number of individuals in this generation}
-
-\item{K}{carrying capacity}
 }
 \description{
 Compute population growth rate under stabilizing selection and no regulation

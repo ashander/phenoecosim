@@ -35,27 +35,29 @@ double W_bar (double zbar, double theta, double oz2, double gamma, bool LOG){
 //' @param R0 basic reproductive number
 //' @param Wbar average fitness
 //' @param N number of individuals in this generation
-//' @param K carrying capacity
 //' @details Assumes ceiling population regulation
 //' would be good to have separate DD function specified after
 //' chevin and lande 2010
 //' @export
 // [[Rcpp::export]]
-double  R_bar(double R0, double Wbar, double N){
+double  R_bar(double R0, double Wbar, double N) {
 	return R0 * Wbar * N;
 }
 
+// @param extra, extra2 unused parameter so function signature is consistent
+double  R_bar_wrap(double R0, double Wbar, double N, double extra, double extra2) {
+	return R_bar(R0, Wbar, N);
+}
+
 //' Compute population growth rate under stabilizing selection and ceiling regulation
-//' @param R0 basic reproductive number
-//' @param Wbar average fitness
-//' @param N number of individuals in this generation
+//' @inheritParams R_bar
 //' @param K carrying capacity
 //' @details Assumes ceiling population regulation
 //' would be good to have separate DD function specified after
 //' chevin and lande 2010
 //' @export
 // [[Rcpp::export]]
-double  R_bar_ceiling(double R0, double Wbar, double N, double K){
+double  R_bar_ceiling(double R0, double Wbar, double N, double K) {
 	N = R0 * Wbar * N;
 	if(N > K) {
 		return K;
@@ -63,17 +65,34 @@ double  R_bar_ceiling(double R0, double Wbar, double N, double K){
 		return N;
 	}
 }
+double  R_bar_ceiling_wrap (double R0, double Wbar, double N, double K, double extra) {
+	return R_bar_ceiling(R0, Wbar, N, K);
+}
 
 //' Compute population growth rate under stabilizing selection and theta-logistic regulation
-//' @inheritParams R_bar_ceiling
+//' @inheritParams R_bar
+//' @param K0 carrying capacity with optimal trait
 //' @param thetaL theta-logistic parameter for density dependence
 //' @details Assumes theta-logistic population regulation
 //' would be good to have separate DD function specified after
 //' chevin and lande 2010
 //' @export
 // [[Rcpp::export]]
-double  R_bar_thetalog(double R0, double Wbar, double N, double K, double thetaL){
-	return pow(R0, (1 - pow(N / K, thetaL))) * Wbar;
+double  R_bar_thetalog(double R0, double Wbar, double N, double K0, double thetaL) {
+	return N * pow(R0, 1 - pow(N, thetaL) / pow(K0, thetaL)) * Wbar;
+}
+
+//' Compute population growth rate under stabilizing selection and Gompertz regulation
+//' @inheritParams R_bar
+//' @param K0 carrying capacity at optimum trait
+//' @details Assumes Gompertz population regulation
+//' @export
+// [[Rcpp::export]]
+double  R_bar_gompertz (double R0, double Wbar, double N, double K0) {
+	return N * pow(R0, 1 - log(N) / log(K0)) * Wbar;
+}
+double  R_bar_gompertz_wrap (double R0, double Wbar, double N, double K0, double extra) {
+	return R_bar_gompertz(R0, Wbar, N, K0);
 }
 
 //' Va additive genetic variance in the phenotype as a function of the environment
@@ -156,25 +175,49 @@ arma::mat make_env(int T, List env_args) {
 	return xi_all;
 }
 
+
+// helpers for simulate_pheno_ts
+enum growth_fn_code {
+	c_default,
+	c_ceiling,
+	c_thetalogistic,
+	c_gompertz
+};
+
+growth_fn_code hash_str (std::string const& in_string) {
+	if (in_string ==  "default") return c_default;
+	if (in_string ==  "ceiling") return c_ceiling;
+	if (in_string ==  "thetalogistic") return c_thetalogistic;
+	if (in_string ==  "gompertz") return c_gompertz;
+	return c_default;
+}
+
 //' Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as
 //' function of environment (after Lande Chevin)
 //' @param T end time, assuming start time of 1
 //' @param X parameters (z, a, b, wbar, logN, theta)
 //' @param params a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)
 //' @param env_args extra args for env.fn
+//' @param growth_fun should be one of "default" (no dd), "gompertz" or "ceiling"
 //' @details NB - for now assume Tchange = 0 and demography after CL 2010
-//' @value a long matrix
+//' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 //' @export
 // [[Rcpp::export]]
 arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
-		List env_args) {
+		List env_args, std::string growth_fun = "default") {
 	// TODO - make above functions consistent with this approach
 	// NB - for now assume Tchange = 0
 	// state vars in X (R indexing)
 	// zbar <- X[1]
 	// abar <- X[2] // elevation
 	// bbar <- X[3]  // slope
-	// Wbar <- X[4] // Npop <- X[5] // Theta <- X[6]
+	// Wbar <- X[4]
+	// Npop <- X[5]
+	// Theta <- X[6]
+	int len = X.size();
+	if(len != 6) {
+		throw std::invalid_argument("Initial conditions must be a vector of length 6!");
+	}
 
 	//tmp vars for bio
 	double zbart;
@@ -184,20 +227,45 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 	double thetat;
 	double betat;
 
-	double gamma_sh = as<double>(params["gamma_sh"]);
+	double gamma = as<double>(params["gamma_sh"]);
 	double omegaz = as<double>(params["omegaz"]);
 	double A =  as<double>(params["A"]);
 	double B = as<double>(params["B"]);
 	double R0 = as<double>(params["R0"]);
 	double var_a = as<double>(params["var_a"]);
 	double Vb = as<double>(params["Vb"]);
+	double dens_dep = 0.0;
+	double dens_dep_secondary = 0.0;
+	double R0_growth = R0;
 
-	double gamma = gamma_sh;
+	double (*R_function)(double, double, double, double, double);
+	switch (hash_str(growth_fun)) {
+		case c_default:
+			R_function = &R_bar_wrap;
+			break;
+		case c_ceiling:
+			R_function = &R_bar_ceiling_wrap;
+			dens_dep = as<double>(params["K0"]);
+			break;
+		case c_thetalogistic:
+			R_function = &R_bar_thetalog;
+			dens_dep = as<double>(params["K0"]);
+			dens_dep_secondary = as<double>(params["thetalog"]);
+			break;
+		case c_gompertz:
+			R_function = &R_bar_gompertz_wrap;
+                        dens_dep = as<double>(params["K0"]);
+			break;
+		default:
+			R_function = &R_bar_wrap;
+			break;
+	}
+
+
 	double oz2 = pow(omegaz, 2);
 
-	int len = X.size();
-	arma::mat out(T + 1, len);
-	out.row(0) = X;
+	arma::mat XX(T + 1, len);
+	XX.row(0) = X; // col names of XX = row names of X
 
 	// tmp vars for env
 	double eps_sel;
@@ -211,16 +279,20 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 		eps_sel =  eps_all(1, t);
 
 		// compute current-generation values for RN params, environmental optimum, and fitness
-		abart = out( t, 1);
-		bbart = out( t, 2);
+		abart = XX( t, 1); // column: reaction norm intercept
+		bbart = XX( t, 2); // column: reaction norm slope
+
+		//also save overall trait and optimum -- these depend on
+		//environment, which we don't save
 		zbart = abart + bbart * eps_dev;
-		out( t, 0) = zbart;
+		XX( t, 0) = zbart; //column: overall trait
+
 		thetat = A + B * eps_sel;
-		out( t, 5) = thetat;
+		XX( t, 5) = thetat; //column: optimum
 
 		// evolutionary change with and population growth
 		wbart = W_bar(zbart, thetat, oz2, gamma, FALSE);
-		out( t, 3) = R0 * wbart;
+		XX( t, 3) = R0 * wbart; //column: absolute fitness
 
 		if(t < T) {
 			// compute next gen values for RN params, population size
@@ -229,10 +301,10 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 			//
 			// N = N * wbar
 			betat = gamma * (zbart - thetat);
-			out( t + 1, 1) = abart - betat * var_a;
-			out( t + 1, 2) = bbart - betat * eps_dev * Vb ;
-			out( t + 1, 4) = R_bar(R0, wbart, out( t, 4));
+			XX( t + 1, 1) = abart - betat * var_a;
+			XX( t + 1, 2) = bbart - betat * eps_dev * Vb ;
+			XX( t + 1, 4) = R_function(R0, wbart, XX( t, 4), dens_dep, dens_dep_secondary); //column: population size
 		}
 	}
-	return out;
+	return XX;
 }

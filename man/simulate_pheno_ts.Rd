@@ -5,7 +5,7 @@
 \title{Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as
 function of environment (after Lande Chevin)}
 \usage{
-simulate_pheno_ts(T, X, params, env_args)
+simulate_pheno_ts(T, X, params, env_args, growth_fun = "default")
 }
 \arguments{
 \item{T}{end time, assuming start time of 1}
@@ -15,6 +15,11 @@ simulate_pheno_ts(T, X, params, env_args)
 \item{params}{a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)}
 
 \item{env_args}{extra args for env.fn}
+
+\item{growth_fun}{should be one of "default" (no dd), "gompertz" or "ceiling"}
+}
+\value{
+a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 }
 \description{
 Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as

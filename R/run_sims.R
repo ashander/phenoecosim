@@ -52,7 +52,7 @@ summary_id <- function( ...) {
 #' @param omega_Wmax max productivity
 #' @param A reference environment intercept
 #' @param B environmental sensitivity of selection
-#' @param K0 carrying capacity (not implemented)
+#' @param K0 carrying capacity (default=10000)
 #' @param stationarity (logical) generate stationary IC if TRUE
 #' @param ... avoid throwing errors if we pass too many? (bad idea)
 #' @details  uses `simulate_pheno_ts` under the hood
@@ -60,7 +60,7 @@ summary_id <- function( ...) {
 simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
                                 sigma_xi, Npop0, var_a,  Ve=Ve,
                                 fractgen=fractgen, omega_Wmax=omega_Wmax, A=A,
-                                B=B, stationarity = TRUE, ...) {
+                                B=B, stationarity = TRUE, K0=10000, ...) {
   ## assumes 0 is the time at which the environment shifts
   ## this because the Vz is set at outset based on delta
   Vz <- Vz_(var_a, Vb, delta, Ve);
@@ -72,19 +72,14 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
   ## r discounted by standing load after env shift
   rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
 
-  ## NOT used for not DD
-  ##rmaxnosh <- log(omega_Wmax) -  1 / 2 *  log(1 + (var_a + Ve ) / (omegaz ^ 2))
-  ## r discounted by standing load in ref \environment
-
   ## Initial conditions
-  ##K <- K0 ^ (rmaxnosh / log(omega_Wmax));
 
   abar0 <- A
   bbar0 <- alpha * B
 
   ## cpp sim init
   param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
-                     A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve)
+                     A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve, K=K0)
   env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho,
                    fractgen=fractgen)
   X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)

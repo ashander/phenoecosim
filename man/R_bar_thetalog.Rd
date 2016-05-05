@@ -4,7 +4,7 @@
 \alias{R_bar_thetalog}
 \title{Compute population growth rate under stabilizing selection and theta-logistic regulation}
 \usage{
-R_bar_thetalog(R0, Wbar, N, K, thetaL)
+R_bar_thetalog(R0, Wbar, N, K0, thetaL)
 }
 \arguments{
 \item{R0}{basic reproductive number}
@@ -13,7 +13,7 @@ R_bar_thetalog(R0, Wbar, N, K, thetaL)
 
 \item{N}{number of individuals in this generation}
 
-\item{K}{carrying capacity}
+\item{K0}{carrying capacity with optimal trait}
 
 \item{thetaL}{theta-logistic parameter for density dependence}
 }

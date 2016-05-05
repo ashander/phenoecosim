@@ -6,7 +6,7 @@
 \usage{
 simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
   var_a, Ve = Ve, fractgen = fractgen, omega_Wmax = omega_Wmax, A = A,
-  B = B, stationarity = TRUE, ...)
+  B = B, stationarity = TRUE, K0 = 10000, ...)
 }
 \arguments{
 \item{nrep}{reps}
@@ -41,9 +41,9 @@ simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
 
 \item{stationarity}{(logical) generate stationary IC if TRUE}
 
-\item{...}{avoid throwing errors if we pass too many? (bad idea)}
+\item{K0}{carrying capacity (default=10000)}
 
-\item{K0}{carrying capacity (not implemented)}
+\item{...}{avoid throwing errors if we pass too many? (bad idea)}
 }
 \description{
 simulate a timeseries

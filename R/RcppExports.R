@@ -25,7 +25,6 @@ W_bar <- function(zbar, theta, oz2, gamma, LOG) {
 #' @param R0 basic reproductive number
 #' @param Wbar average fitness
 #' @param N number of individuals in this generation
-#' @param K carrying capacity
 #' @details Assumes ceiling population regulation
 #' would be good to have separate DD function specified after
 #' chevin and lande 2010
@@ -35,9 +34,7 @@ R_bar <- function(R0, Wbar, N) {
 }
 
 #' Compute population growth rate under stabilizing selection and ceiling regulation
-#' @param R0 basic reproductive number
-#' @param Wbar average fitness
-#' @param N number of individuals in this generation
+#' @inheritParams R_bar
 #' @param K carrying capacity
 #' @details Assumes ceiling population regulation
 #' would be good to have separate DD function specified after
@@ -48,14 +45,24 @@ R_bar_ceiling <- function(R0, Wbar, N, K) {
 }
 
 #' Compute population growth rate under stabilizing selection and theta-logistic regulation
-#' @inheritParams R_bar_ceiling
+#' @inheritParams R_bar
+#' @param K0 carrying capacity with optimal trait
 #' @param thetaL theta-logistic parameter for density dependence
 #' @details Assumes theta-logistic population regulation
 #' would be good to have separate DD function specified after
 #' chevin and lande 2010
 #' @export
-R_bar_thetalog <- function(R0, Wbar, N, K, thetaL) {
-    .Call('phenoecosim_R_bar_thetalog', PACKAGE = 'phenoecosim', R0, Wbar, N, K, thetaL)
+R_bar_thetalog <- function(R0, Wbar, N, K0, thetaL) {
+    .Call('phenoecosim_R_bar_thetalog', PACKAGE = 'phenoecosim', R0, Wbar, N, K0, thetaL)
+}
+
+#' Compute population growth rate under stabilizing selection and Gompertz regulation
+#' @inheritParams R_bar
+#' @param K0 carrying capacity at optimum trait
+#' @details Assumes Gompertz population regulation
+#' @export
+R_bar_gompertz <- function(R0, Wbar, N, K0) {
+    .Call('phenoecosim_R_bar_gompertz', PACKAGE = 'phenoecosim', R0, Wbar, N, K0)
 }
 
 #' Va additive genetic variance in the phenotype as a function of the environment
@@ -94,10 +101,11 @@ make_env <- function(T, env_args) {
 #' @param X parameters (z, a, b, wbar, logN, theta)
 #' @param params a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)
 #' @param env_args extra args for env.fn
+#' @param growth_fun should be one of "default" (no dd), "gompertz" or "ceiling"
 #' @details NB - for now assume Tchange = 0 and demography after CL 2010
-#' @value a long matrix
+#' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 #' @export
-simulate_pheno_ts <- function(T, X, params, env_args) {
-    .Call('phenoecosim_simulate_pheno_ts', PACKAGE = 'phenoecosim', T, X, params, env_args)
+simulate_pheno_ts <- function(T, X, params, env_args, growth_fun = "default") {
+    .Call('phenoecosim_simulate_pheno_ts', PACKAGE = 'phenoecosim', T, X, params, env_args, growth_fun)
 }
 
