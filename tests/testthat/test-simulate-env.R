@@ -6,7 +6,7 @@ for(rho in 1:8 * 0.1) {
   max_T = 1000
   start_T = 1
   for(delta in 1:8)
-    for(fractgen in 5:10)
+    for(fractgen in 4:8)
       for(sigma_xi in c(0.5, 0.75, 1, 3)) {
         env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho, fractgen=fractgen)
         env_dev_sel = make_env(T=max_T, env_args=env.list)
