@@ -1,6 +1,5 @@
 
 library(phenoecosim)
-context("Simulation testing")
 
 test_envr <- list(nrep=1,
                   delta=2,
@@ -23,6 +22,7 @@ test_envr <- list(nrep=1,
                   Tlim=10000)
 
 
+context("Simulation testing without stationary initial conditions")
 test_that("Sim ts produce right object", {
     invisible(list2env(test_envr, envir=environment()))
     set.seed(111)
@@ -82,7 +82,8 @@ test_that("run_sims_on_grid traj speed", {
 
 
 ################################################################################
-test_that("Stationarity checks", {
+context("Simulation testing WITH stationary initial conditions")
+test_that("Stationarity IC generator works", {
     invisible(list2env(test_envr, envir=environment()))
 
   set.seed(111)
