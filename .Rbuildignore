@@ -2,3 +2,5 @@ tfscratch.R
 rcppexample.R
 tests
 tmp.cpp
+Dockerfile
+README.Rmd
