@@ -128,8 +128,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // simulate_pheno_ts
-arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params, List env_args, std::string growth_fun);
-RcppExport SEXP phenoecosim_simulate_pheno_ts(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP, SEXP growth_funSEXP) {
+arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params, List env_args, std::string growth_fun, bool poisson);
+RcppExport SEXP phenoecosim_simulate_pheno_ts(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP, SEXP growth_funSEXP, SEXP poissonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -138,7 +138,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP);
     Rcpp::traits::input_parameter< std::string >::type growth_fun(growth_funSEXP);
-    __result = Rcpp::wrap(simulate_pheno_ts(T, X, params, env_args, growth_fun));
+    Rcpp::traits::input_parameter< bool >::type poisson(poissonSEXP);
+    __result = Rcpp::wrap(simulate_pheno_ts(T, X, params, env_args, growth_fun, poisson));
     return __result;
 END_RCPP
 }

@@ -54,16 +54,18 @@ summary_id <- function( ...) {
 #' @param B environmental sensitivity of selection
 #' @param K0 carrying capacity (default=10000)
 #' @param stationarity (logical) generate stationary IC if TRUE
-#' @param density form of density dependence ('default', 'gompertz', 'thetalogistic', 'ceiling')
+#' @param density density dependence ('independent', 'gompertz', 'thetalogistic', 'ceiling')
 #' @param thetalog theta parameter for theta-logistic
+#' @param poisson (logical) reproduction occurs as N(t+1) = Poisson(f(N(t)))
 #' @param ... avoid throwing errors if we pass too many? (bad idea)
-#' @details  uses `simulate_pheno_ts` under the hood
+#' @details  uses `simulate_pheno_ts` under the hood. Poisson only implemented
+#' for density='independent'
 #' @export
 simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
                                 sigma_xi, Npop0, var_a,  Ve=Ve,
                                 fractgen=fractgen, omega_Wmax=omega_Wmax, A=A,
-                                B=B, stationarity = TRUE, K0=10000, density="default",
-                                thetalog = NA, ...) {
+                                B=B, stationarity = TRUE, K0=10000, density="independent",
+                                thetalog = NA, poisson=FALSE, ...) {
   ## assumes 0 is the time at which the environment shifts
   ## this because the Vz is set at outset based on delta
   Vz <- Vz_(var_a, Vb, delta, Ve);
@@ -81,7 +83,7 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
   bbar0 <- alpha * B
 
   ## cpp sim init
-  if (density != "default")
+  if (density != "independent")
     param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
                       A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve)
   else if (density != "thetalogistic")
@@ -98,7 +100,8 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
   all.out <- lapply(1:nrep, function(r)
                     {
                       cbind(rep(r, Tlim + 1), 0:Tlim,
-                            simulate_pheno_ts(Tlim, ic_generator(r), param.list, env.list, density))
+                            simulate_pheno_ts(Tlim, ic_generator(r), param.list, env.list,
+                                              density, poisson))
                     })
   all.out <- do.call(rbind, all.out)
   colnames(all.out) <- c("rep", "time", names(X0))

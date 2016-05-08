@@ -6,8 +6,8 @@
 \usage{
 simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
   var_a, Ve = Ve, fractgen = fractgen, omega_Wmax = omega_Wmax, A = A,
-  B = B, stationarity = TRUE, K0 = 10000, density = "default",
-  thetalog = NA, ...)
+  B = B, stationarity = TRUE, K0 = 10000, density = "independent",
+  thetalog = NA, poisson = FALSE, ...)
 }
 \arguments{
 \item{nrep}{reps}
@@ -44,9 +44,11 @@ simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
 
 \item{K0}{carrying capacity (default=10000)}
 
-\item{density}{form of density dependence ('default', 'gompertz', 'thetalogistic', 'ceiling')}
+\item{density}{density dependence ('independent', 'gompertz', 'thetalogistic', 'ceiling')}
 
 \item{thetalog}{theta parameter for theta-logistic}
+
+\item{poisson}{(logical) reproduction occurs as N(t+1) = Poisson(f(N(t)))}
 
 \item{...}{avoid throwing errors if we pass too many? (bad idea)}
 }
@@ -54,6 +56,7 @@ simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
 simulate a timeseries
 }
 \details{
-uses `simulate_pheno_ts` under the hood
+uses `simulate_pheno_ts` under the hood. Poisson only implemented
+for density='independent'
 }
 

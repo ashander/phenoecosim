@@ -5,7 +5,8 @@
 \title{Compute phenotypic dynamic Time Series of trait + demographic change under stabilizing selection as
 function of environment (after Lande Chevin)}
 \usage{
-simulate_pheno_ts(T, X, params, env_args, growth_fun = "default")
+simulate_pheno_ts(T, X, params, env_args, growth_fun = "independent",
+  poisson = FALSE)
 }
 \arguments{
 \item{T}{end time, assuming start time of 1}
@@ -16,7 +17,9 @@ simulate_pheno_ts(T, X, params, env_args, growth_fun = "default")
 
 \item{env_args}{extra args for env.fn}
 
-\item{growth_fun}{should be one of "default" (no dd), "gompertz" or "ceiling"}
+\item{growth_fun}{density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")}
+
+\item{poisson}{(logical) return N(t+1) = Poisson(f(N(t))}
 }
 \value{
 a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
@@ -27,5 +30,6 @@ function of environment (after Lande Chevin)
 }
 \details{
 NB - for now assume Tchange = 0 and demography after CL 2010
+         poisson only implemented for default
 }
 

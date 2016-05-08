@@ -43,6 +43,10 @@ double W_bar (double zbar, double theta, double oz2, double gamma, bool LOG){
 double  R_bar(double R0, double Wbar, double N) {
 	return R0 * Wbar * N;
 }
+double  R_bar_poisson(double R0, double Wbar, double N, double extra1, double extra2) {
+	// Rcpp::Rcout << "Wbar: " << Wbar << std::endl;
+	return R::rpois(R_bar(R0, Wbar, N));
+}
 
 // @param extra, extra2 unused parameter so function signature is consistent
 double  R_bar_wrap(double R0, double Wbar, double N, double extra, double extra2) {
@@ -185,7 +189,7 @@ enum growth_fn_code {
 };
 
 growth_fn_code hash_str (std::string const& in_string) {
-	if (in_string ==  "default") return c_default;
+	if (in_string ==  "independent") return c_default;
 	if (in_string ==  "ceiling") return c_ceiling;
 	if (in_string ==  "thetalogistic") return c_thetalogistic;
 	if (in_string ==  "gompertz") return c_gompertz;
@@ -198,14 +202,16 @@ growth_fn_code hash_str (std::string const& in_string) {
 //' @param X parameters (z, a, b, wbar, logN, theta)
 //' @param params a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)
 //' @param env_args extra args for env.fn
-//' @param growth_fun should be one of "default" (no dd), "gompertz" or "ceiling"
+//' @param growth_fun density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")
+//' @param poisson (logical) return N(t+1) = Poisson(f(N(t)) 
 //' @details NB - for now assume Tchange = 0 and demography after CL 2010
+//'          poisson only implemented for default
 //' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 //' @export
 // [[Rcpp::export]]
 arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
-		List env_args, std::string growth_fun = "default") {
-	// TODO - make above functions consistent with this approach
+		List env_args, std::string growth_fun = "independent",
+		bool poisson = false) {
 	// NB - for now assume Tchange = 0
 	// state vars in X (R indexing)
 	// zbar <- X[1]
@@ -234,27 +240,30 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 	double R0 = as<double>(params["R0"]);
 	double var_a = as<double>(params["var_a"]);
 	double Vb = as<double>(params["Vb"]);
-	double dens_dep = 0.0;
-	double dens_dep_secondary = 0.0;
+	double grow_p1 = 0.0;
+	double grow_p2 = 0.0;
 	double R0_growth = R0;
 
 	double (*R_function)(double, double, double, double, double);
 	switch (hash_str(growth_fun)) {
 		case c_default:
-			R_function = &R_bar_wrap;
+			if (!poisson)
+				R_function = &R_bar_wrap;
+			else
+				R_function = &R_bar_poisson;
 			break;
 		case c_ceiling:
 			R_function = &R_bar_ceiling_wrap;
-			dens_dep = as<double>(params["K0"]);
+			grow_p1 = as<double>(params["K0"]);
 			break;
 		case c_thetalogistic:
 			R_function = &R_bar_thetalog;
-			dens_dep = as<double>(params["K0"]);
-			dens_dep_secondary = as<double>(params["thetalog"]);
+			grow_p1 = as<double>(params["K0"]);
+			grow_p2 = as<double>(params["thetalog"]);
 			break;
 		case c_gompertz:
 			R_function = &R_bar_gompertz_wrap;
-                        dens_dep = as<double>(params["K0"]);
+                        grow_p1 = as<double>(params["K0"]);
 			break;
 		default:
 			R_function = &R_bar_wrap;
@@ -289,6 +298,7 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 
 		thetat = A + B * eps_sel;
 		XX( t, 5) = thetat; //column: optimum
+	        //Rcpp::Rcout << "theta: " << thetat << std::endl;
 
 		// evolutionary change with and population growth
 		wbart = W_bar(zbart, thetat, oz2, gamma, FALSE);
@@ -303,7 +313,7 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 			betat = gamma * (zbart - thetat);
 			XX( t + 1, 1) = abart - betat * var_a;
 			XX( t + 1, 2) = bbart - betat * eps_dev * Vb ;
-			XX( t + 1, 4) = R_function(R0, wbart, XX( t, 4), dens_dep, dens_dep_secondary); //column: population size
+			XX( t + 1, 4) = R_function(R0, wbart, XX( t, 4), grow_p1, grow_p2); //column: population size
 		}
 	}
 	return XX;
