@@ -6,7 +6,8 @@
 \usage{
 simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
   var_a, Ve = Ve, fractgen = fractgen, omega_Wmax = omega_Wmax, A = A,
-  B = B, stationarity = TRUE, K0 = 10000, ...)
+  B = B, stationarity = TRUE, K0 = 10000, density = "default",
+  thetalog = NA, ...)
 }
 \arguments{
 \item{nrep}{reps}
@@ -42,6 +43,10 @@ simulate_timeseries(nrep, Tlim, delta, rho, alpha, omegaz, Vb, sigma_xi, Npop0,
 \item{stationarity}{(logical) generate stationary IC if TRUE}
 
 \item{K0}{carrying capacity (default=10000)}
+
+\item{density}{form of density dependence ('default', 'gompertz', 'thetalogistic', 'ceiling')}
+
+\item{thetalog}{theta parameter for theta-logistic}
 
 \item{...}{avoid throwing errors if we pass too many? (bad idea)}
 }

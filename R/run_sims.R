@@ -54,13 +54,16 @@ summary_id <- function( ...) {
 #' @param B environmental sensitivity of selection
 #' @param K0 carrying capacity (default=10000)
 #' @param stationarity (logical) generate stationary IC if TRUE
+#' @param density form of density dependence ('default', 'gompertz', 'thetalogistic', 'ceiling')
+#' @param thetalog theta parameter for theta-logistic
 #' @param ... avoid throwing errors if we pass too many? (bad idea)
 #' @details  uses `simulate_pheno_ts` under the hood
 #' @export
 simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
                                 sigma_xi, Npop0, var_a,  Ve=Ve,
                                 fractgen=fractgen, omega_Wmax=omega_Wmax, A=A,
-                                B=B, stationarity = TRUE, K0=10000, ...) {
+                                B=B, stationarity = TRUE, K0=10000, density="default",
+                                thetalog = NA, ...) {
   ## assumes 0 is the time at which the environment shifts
   ## this because the Vz is set at outset based on delta
   Vz <- Vz_(var_a, Vb, delta, Ve);
@@ -78,16 +81,24 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
   bbar0 <- alpha * B
 
   ## cpp sim init
-  param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
-                     A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve, K=K0)
-  env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho,
-                   fractgen=fractgen)
+  if (density != "default")
+    param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
+                      A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve)
+  else if (density != "thetalogistic")
+    param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
+                      A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve, K0=K0)
+  else if (density == "thetalogistic")
+    param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
+                      A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve, K0=K0, 
+                      thetalog=thetalog)
+
+  env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho, fractgen=fractgen)
   X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)
   ic_generator <- initial_state_generator(X0, stationarity, nrep, param.list, env.list, alpha)
   all.out <- lapply(1:nrep, function(r)
                     {
                       cbind(rep(r, Tlim + 1), 0:Tlim,
-                            simulate_pheno_ts(Tlim, ic_generator(r), param.list, env.list))
+                            simulate_pheno_ts(Tlim, ic_generator(r), param.list, env.list, density))
                     })
   all.out <- do.call(rbind, all.out)
   colnames(all.out) <- c("rep", "time", names(X0))
