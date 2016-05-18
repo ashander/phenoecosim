@@ -22,6 +22,75 @@ test_envr <- list(nrep=1,
                   Tlim=10000)
 
 
+context("Simulation testing with density-dependence")
+test_that("Sim ts with ceiling produce right object", {
+    invisible(list2env(test_envr, envir=environment()))
+    set.seed(111)
+    tmp <- simulate_timeseries(nrep=nrep, Tlim=Tlim, delta=delta, rho=rho, alpha=alpha, omegaz=omegaz,
+                  sigma_xi=sigma_xi, Npop=Npop0, var_a=var_a, Vb=Vb,
+                  Ve=Ve, fractgen=fractgen, omega_Wmax=omega_Wmax,
+                  A=A, B=B, K0=K0, stationarity = FALSE, density="ceiling")
+    expect_equal_to_reference(tmp, 'sim-ts-ceiling.rds', scale=1, tolerance=0.1)
+})
+
+# ITS A DATA FRAME
+test_that("run_sims_on_grid traj with ceiling produce right object", {
+    invisible(list2env(test_envr, envir=environment()))
+    set.seed(111)
+
+    alpha <- 0.5
+    omegaz <- sqrt(20)
+    traj.data <- data.frame(
+        rho = c(0.3, 0.7, 0.7),
+        delta=c(2.5, 2.5, 5)
+        )
+    traj.data$obs <- 1:nrow(traj.data)
+    traj.data$omegaz <- omegaz
+    traj.data$Vb  <- Vb
+    traj.data$alpha <- alpha
+    Tlim <-1500
+    example_traj_reps <- 10
+    time_calc <- system.time(traj.data <- run_sims_on_grid(summary_id, traj.data,  nrep=example_traj_reps, var_a=var_a,
+                           Tlim=Tlim, seed=111,  Ve=Ve, fractgen=fractgen, omega_Wmax=omega_Wmax,
+                           Npop0=Npop0, sigma_xi=sigma_xi, K0=K0, B=B, A=A, stationarity = FALSE, density = "ceiling"))
+    expect_equal_to_reference(traj.data, "calc_many_traj-ceiling.rds", scale=1, tolerance=0.1)
+    cat("\nTime traj calc: ", time_calc['elapsed'], "\n")
+    expect_less_than(time_calc['elapsed'], 0.6)
+})
+test_that("run_sims_on_grid traj with density-dependence: speed", {
+    invisible(list2env(test_envr, envir=environment()))
+    set.seed(111)
+
+    alpha <- 0.5
+    omegaz <- sqrt(20)
+    traj.data <- data.frame(
+        rho = c(0.3, 0.7, 0.7),
+        delta=c(2.5, 2.5, 5)
+        )
+    traj.data$obs <- 1:nrow(traj.data)
+    traj.data$omegaz <- omegaz
+    traj.data$Vb  <- Vb
+    traj.data$alpha <- alpha
+    time_calc <- system.time(run_sims_on_grid(summary_id, traj.data,  nrep=20, var_a=var_a,
+                           Tlim=200, seed=111,  Ve=Ve, fractgen=fractgen, omega_Wmax=omega_Wmax,
+                           Npop0=Npop0, sigma_xi=sigma_xi, K0=K0, B=B, A=A, stationarity = FALSE, density="ceiling"))
+    cat("\nTime traj calc: ", time_calc['elapsed'], "\n")
+    expect_less_than(time_calc['elapsed'], 0.6)
+    time_calc <- system.time(run_sims_on_grid(summary_id, traj.data,  nrep=20, var_a=var_a,
+                           Tlim=200, seed=111,  Ve=Ve, fractgen=fractgen, omega_Wmax=omega_Wmax,
+                           Npop0=Npop0, sigma_xi=sigma_xi, K0=K0, B=B, A=A, stationarity = FALSE,
+                           density="thetalogistic", thetalog=2))
+    cat("\nTime traj calc: ", time_calc['elapsed'], "\n")
+    expect_less_than(time_calc['elapsed'], 0.6)
+    time_calc <- system.time(run_sims_on_grid(summary_id, traj.data,  nrep=20, var_a=var_a,
+                           Tlim=200, seed=111,  Ve=Ve, fractgen=fractgen, omega_Wmax=omega_Wmax,
+                           Npop0=Npop0, sigma_xi=sigma_xi, K0=K0, B=B, A=A, stationarity = FALSE,
+                           density="gompertz"))
+    cat("\nTime traj calc: ", time_calc['elapsed'], "\n")
+    expect_less_than(time_calc['elapsed'], 0.6)
+
+})
+
 context("Simulation testing without stationary initial conditions")
 test_that("Sim ts produce right object", {
     invisible(list2env(test_envr, envir=environment()))

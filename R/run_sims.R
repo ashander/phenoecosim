@@ -83,7 +83,7 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
   bbar0 <- alpha * B
 
   ## cpp sim init
-  if (density != "independent")
+  if (density == "independent")
     param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
                       A=A, B=B, R0=omega_Wmax, var_a=var_a, Vb=Vb, Ve=Ve)
   else if (density != "thetalogistic")

@@ -71,6 +71,8 @@ for (form in dd_forms) {
                           if (debug_eq) {
                             browser()
                             par(mfrow=c(1, 2))
+                            tail_idxs <- 1:nrow(traj_dd)
+
                             plot(traj_dd[tail_idxs , Npop_idx], ylog=TRUE)
                             form = "thetalogistic"
                             traj_dd <- simulate_pheno_ts(Tlim, X0, param.list, env.list, form)
