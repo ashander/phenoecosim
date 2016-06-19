@@ -85,6 +85,9 @@ double  R_bar_ceiling_wrap (double R0, double Wbar, double N, double K, double e
 double  R_bar_thetalog(double R0, double Wbar, double N, double K0, double thetaL) {
 	return N * pow(R0, 1 - pow(N, thetaL) / pow(K0, thetaL)) * Wbar;
 }
+double  R_bar_thetalog_poisson(double R0, double Wbar, double N, double K0, double thetaL) {
+	return R::rpois(R_bar_thetalog(R0, Wbar, N, K0, thetaL));
+}
 
 //' Compute population growth rate under stabilizing selection and Gompertz regulation
 //' @inheritParams R_bar
@@ -203,9 +206,9 @@ growth_fn_code hash_str (std::string const& in_string) {
 //' @param params a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)
 //' @param env_args extra args for env.fn
 //' @param growth_fun density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")
-//' @param poisson (logical) return N(t+1) = Poisson(f(N(t)) 
+//' @param poisson (logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
+//'        implemented for independent and thetalog!
 //' @details NB - for now assume Tchange = 0 and demography after CL 2010
-//'          poisson only implemented for default
 //' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 //' @export
 // [[Rcpp::export]]
@@ -257,7 +260,10 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 			grow_p1 = as<double>(params["K0"]);
 			break;
 		case c_thetalogistic:
-			R_function = &R_bar_thetalog;
+			if (!poisson)
+				R_function = &R_bar_thetalog;
+			else
+				R_function = &R_bar_thetalog_poisson;
 			grow_p1 = as<double>(params["K0"]);
 			grow_p2 = as<double>(params["thetalog"]);
 			break;

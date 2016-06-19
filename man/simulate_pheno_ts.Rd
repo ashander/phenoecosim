@@ -19,7 +19,8 @@ simulate_pheno_ts(T, X, params, env_args, growth_fun = "independent",
 
 \item{growth_fun}{density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")}
 
-\item{poisson}{(logical) return N(t+1) = Poisson(f(N(t))}
+\item{poisson}{(logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
+implemented for independent and thetalog!}
 }
 \value{
 a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
@@ -30,6 +31,5 @@ function of environment (after Lande Chevin)
 }
 \details{
 NB - for now assume Tchange = 0 and demography after CL 2010
-         poisson only implemented for default
 }
 

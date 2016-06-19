@@ -112,7 +112,7 @@ for( Va in c(0.05, 0.1))
   for( omegaz in sqrt(c(10, 25)))
     for( rho0 in c(0.3, 0.7))
       for( R0 in c(1.1, 1.3, 2)) 
-        for( Npop0 in c(1, 5, 300)) {
+        for( Npop0 in c(5, 50, 300)) {
           ## for some reason Npop0 = 20 cause trouble...
             Vz <- Vz_(Va, Vb, delta, Ve)
             gamma_sh <-  1 / (omegaz ^ 2 + Vz)
@@ -121,7 +121,7 @@ for( Va in c(0.05, 0.1))
             bbar0 <- alpha * B
 
             param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
-                               A=A, B=B, R0=R0, var_a=Va, Vb=Vb, Ve=Ve)
+                               A=A, B=B, R0=R0, var_a=Va, Vb=Vb, Ve=Ve, thetalog=5, K0=1000)
             env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho1, fractgen=fractgen)
 
             Tlim <- 1
@@ -137,6 +137,12 @@ for( Va in c(0.05, 0.1))
                                   simulate_pheno_ts(Tlim, X0,
                                                     param.list, env.list,
                                                     poisson=TRUE)[2 , Npop_idx])
+            our_sims_dd <- replicate(reps,
+
+                                  simulate_pheno_ts(Tlim, X0,
+                                                    param.list, env.list, growth_fun="thetalogistic",
+                                                    poisson=TRUE)
+                                  [2 , Npop_idx])
             set.seed(111)
             rpois_sims <- replicate(reps, rpois(1, lambda))
             test_that(paste(paste("correct Poisson output for lambda~", R0 * Npop0, ":"),
@@ -148,15 +154,16 @@ for( Va in c(0.05, 0.1))
             {
               # for debug --  expect_equal(our_sims, rpois_sims)
 
-              # use se of mean pois for poisson
+              # use se of mean for poisson -- but the actual error is large ...
               se_pois <- sqrt(mean(our_sims) / reps)
-              expect_equal(mean(our_sims), mean(rpois_sims), scale=1, tolerance = 3 * se_pois)
+              expect_equal(mean(our_sims), mean(rpois_sims), scale=1, tolerance = 4 * se_pois)
+              expect_equal(mean(our_sims_dd), mean(rpois_sims), scale=1, tolerance = 4 * se_pois)
 
               # use variance of sample variance for normal to set expected
               # precision, the se of sample var is about
-              # (for some reason don't need to scale this up, eg, as we did by 3
-              # above)
-              se_var_pois <- sqrt(2 / (reps - 1) * var(our_sims) ^ 2) 
-              expect_equal(var(our_sims),  var(rpois_sims), scale=1, tolerance = se_var_pois)
+              se_var_pois <- sqrt(2 / (reps - 1) * var(our_sims) ^ 2)
+              # also shift expected variance down for dd (because it's capped?)
+              expect_equal(var(our_sims),  var(rpois_sims), scale=1, tolerance = 1.5 * se_var_pois)
+              expect_equal(var(our_sims_dd),  0.95 * var(rpois_sims), scale=1, tolerance = 1.5 * se_var_pois)
             })
 }

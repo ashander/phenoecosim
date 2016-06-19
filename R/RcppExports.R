@@ -102,9 +102,9 @@ make_env <- function(T, env_args) {
 #' @param params a list with (gamma_sh, omegaz, A, B, R0, var_a, Vb, delta, sigma_xi, rho_tau, fractgen)
 #' @param env_args extra args for env.fn
 #' @param growth_fun density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")
-#' @param poisson (logical) return N(t+1) = Poisson(f(N(t)) 
+#' @param poisson (logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
+#'        implemented for independent and thetalog!
 #' @details NB - for now assume Tchange = 0 and demography after CL 2010
-#'          poisson only implemented for default
 #' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 #' @export
 simulate_pheno_ts <- function(T, X, params, env_args, growth_fun = "independent", poisson = FALSE) {
