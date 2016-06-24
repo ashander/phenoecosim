@@ -57,15 +57,17 @@ summary_id <- function( ...) {
 #' @param density density dependence ('independent', 'gompertz', 'thetalogistic', 'ceiling')
 #' @param thetalog theta parameter for theta-logistic
 #' @param poisson (logical) reproduction occurs as N(t+1) = Poisson(f(N(t)))
+#' @param varying_g (logical) vary genetic variance parameters according to SHC approximation
 #' @param ... avoid throwing errors if we pass too many? (bad idea)
 #' @details  uses `simulate_pheno_ts` under the hood. Poisson only implemented
-#' for density='independent'
+#' for density='independent' and 'thetalog'. For detail on SHC see help for
+#' simulate_pheno_ts and SHC.
 #' @export
 simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
                                 sigma_xi, Npop0, var_a,  Ve=Ve,
                                 fractgen=fractgen, omega_Wmax=omega_Wmax, A=A,
                                 B=B, stationarity = TRUE, K0=10000, density="independent",
-                                thetalog = NA, poisson=FALSE, ...) {
+                                thetalog = NA, poisson=FALSE, varying_g=FALSE, ...) {
   ## assumes 0 is the time at which the environment shifts
   ## this because the Vz is set at outset based on delta
   Vz <- Vz_(var_a, Vb, delta, Ve);
@@ -101,7 +103,7 @@ simulate_timeseries <- function(nrep, Tlim, delta, rho, alpha, omegaz, Vb,
                     {
                       cbind(rep(r, Tlim + 1), 0:Tlim,
                             simulate_pheno_ts(Tlim, ic_generator(r), param.list, env.list,
-                                              density, poisson))
+                                              density, poisson, varying_g))
                     })
   all.out <- do.call(rbind, all.out)
   colnames(all.out) <- c("rep", "time", names(X0))

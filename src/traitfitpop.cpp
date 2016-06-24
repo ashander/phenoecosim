@@ -112,6 +112,45 @@ double Va(arma::vec env, arma::mat GG){
 	return as_scalar(trans(env) * GG * env);
 }
 
+//' Calculate N_e
+//'
+//' R0 @param reproductive rate
+//' N   @param census popualtion size
+//' @details use $N_e \approx 2 R0 N  / (2 R0 - 1)$.
+//' @export
+// [[Rcpp::export]]
+double N_e(double R0, double N) {
+	return 2.0 * R0 * N / (2.0 * R0 - 1);
+}
+
+//' SHC
+//'
+//' @param sigma_g2 asymptotic genetic variance
+//' @param omegaz2 defines width of the fitness function $\omega ^2 + 1$
+//' @param N     census population size
+//' @param R0   reproductive rate
+//' @details
+//'          For this modified SHC after Burger
+//'          \[
+//'          \sigma_{SHC}(\sigma_g^2) =
+//'           \frac{sigma_g}{1 + \frac{V_s}{\alpha ^ 2 N_e}}
+//'          \]
+//'          For $\alpha^2$ the variance of the effect of new mutations, $V_m$
+//'          the genomic mutation rate per generation, and $N_e \approx 2 R_0 N  / (2 R_0 - 1)$.
+//'          As population size increases, the function approaches a limit of $\sigma_g^2$
+//'          $V_s = \omega^2 + \sigma_e^2$ is the width of the fitness function.
+//'          Hard-coded parameters and $alpha^2 = 0.005$ and $\sigma_e^2 = 1$
+//' @export
+// [[Rcpp::export]]
+double SHC(double sigma_g2, double omegaz2, double N, double R0){
+	return sigma_g2 / (1 + (omegaz2 + 1) / (pow(0.005, 2) * N_e(R0, N)));
+}
+
+// Identity
+double Identity(double sigma, double extra1, double extra2, double extra3){
+	return sigma;
+}
+
 //' Compute a white noise environment with a shift
 //' @param t the time point
 //' @param env_args other args:
@@ -208,13 +247,24 @@ growth_fn_code hash_str (std::string const& in_string) {
 //' @param growth_fun density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")
 //' @param poisson (logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
 //'        implemented for independent and thetalog!
+//' @param varying_g varying genetic variance using stochastic house of cards (SHC)
+//'                  approximation. See Details.
 //' @details NB - for now assume Tchange = 0 and demography after CL 2010
+//'          For the SHC after Burger and Lynch (1995) and Kopp and Matuszewski (2013)
+//'          \[
+//'          \sigma_{SHC}() =
+//'           \frac{2 V_m V_s}{1 + \frac{V_s}{\alpha ^ 2 N_e}}
+//'          \]
+//'          For $\alpha^2$ the variance of the effect of new mutations, $V_m$
+//'          the genomic mutation rate per generation, and $N_e \approx 2 R_0 N  / (2 R_0 - 1)$.
+//'          As population size increases, the function approaches a limit of $2 V_s V_m$
+//'          $V_s = \omega^2 + \sigma_e^2$ (we hard code the latter as 1) is the width of the fitness function.
 //' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 //' @export
 // [[Rcpp::export]]
 arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 		List env_args, std::string growth_fun = "independent",
-		bool poisson = false) {
+		bool poisson = false, bool varying_g = false) {
 	// NB - for now assume Tchange = 0
 	// state vars in X (R indexing)
 	// zbar <- X[1]
@@ -235,6 +285,7 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 	double wbart;
 	double thetat;
 	double betat;
+	double N;
 
 	double gamma = as<double>(params["gamma_sh"]);
 	double omegaz = as<double>(params["omegaz"]);
@@ -245,7 +296,6 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 	double Vb = as<double>(params["Vb"]);
 	double grow_p1 = 0.0;
 	double grow_p2 = 0.0;
-	double R0_growth = R0;
 
 	double (*R_function)(double, double, double, double, double);
 	switch (hash_str(growth_fun)) {
@@ -276,6 +326,11 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 			break;
 	}
 
+	double (*G_function)(double, double, double, double);
+	if (varying_g)
+		G_function = &SHC;
+	else
+		G_function = &Identity;
 
 	double oz2 = pow(omegaz, 2);
 
@@ -317,9 +372,10 @@ arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params,
 			//
 			// N = N * wbar
 			betat = gamma * (zbart - thetat);
-			XX( t + 1, 1) = abart - betat * var_a;
-			XX( t + 1, 2) = bbart - betat * eps_dev * Vb ;
-			XX( t + 1, 4) = R_function(R0, wbart, XX( t, 4), grow_p1, grow_p2); //column: population size
+			N = XX( t, 4);
+			XX( t + 1, 1) = abart - betat * G_function(var_a, oz2, N, R0);
+			XX( t + 1, 2) = bbart - betat * eps_dev * G_function(Vb, oz2, N, R0);
+			XX( t + 1, 4) = R_function(R0, wbart, N, grow_p1, grow_p2); //column: population size
 		}
 	}
 	return XX;

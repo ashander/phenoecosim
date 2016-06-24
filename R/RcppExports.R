@@ -73,6 +73,38 @@ Va <- function(env, GG) {
     .Call('phenoecosim_Va', PACKAGE = 'phenoecosim', env, GG)
 }
 
+#' Calculate N_e
+#'
+#' R0 @param reproductive rate
+#' N   @param census popualtion size
+#' @details use $N_e \approx 2 R0 N  / (2 R0 - 1)$.
+#' @export
+N_e <- function(R0, N) {
+    .Call('phenoecosim_N_e', PACKAGE = 'phenoecosim', R0, N)
+}
+
+#' SHC
+#'
+#' @param sigma_g2 asymptotic genetic variance
+#' @param omegaz2 defines width of the fitness function $\omega ^2 + 1$
+#' @param N     census population size
+#' @param R0   reproductive rate
+#' @details
+#'          For this modified SHC after Burger
+#'          \[
+#'          \sigma_{SHC}(\sigma_g^2) =
+#'           \frac{sigma_g}{1 + \frac{V_s}{\alpha ^ 2 N_e}}
+#'          \]
+#'          For $\alpha^2$ the variance of the effect of new mutations, $V_m$
+#'          the genomic mutation rate per generation, and $N_e \approx 2 R_0 N  / (2 R_0 - 1)$.
+#'          As population size increases, the function approaches a limit of $\sigma_g^2$
+#'          $V_s = \omega^2 + \sigma_e^2$ is the width of the fitness function.
+#'          Hard-coded parameters and $alpha^2 = 0.005$ and $\sigma_e^2 = 1$
+#' @export
+SHC <- function(sigma_g2, omegaz2, N, R0) {
+    .Call('phenoecosim_SHC', PACKAGE = 'phenoecosim', sigma_g2, omegaz2, N, R0)
+}
+
 #' Compute a white noise environment with a shift
 #' @param t the time point
 #' @param env_args other args:
@@ -104,10 +136,21 @@ make_env <- function(T, env_args) {
 #' @param growth_fun density-dependence ("independent", "gompertz", "thetalogistic", "ceiling")
 #' @param poisson (logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
 #'        implemented for independent and thetalog!
+#' @param varying_g varying genetic variance using stochastic house of cards (SHC)
+#'                  approximation. See Details.
 #' @details NB - for now assume Tchange = 0 and demography after CL 2010
+#'          For the SHC after Burger and Lynch (1995) and Kopp and Matuszewski (2013)
+#'          \[
+#'          \sigma_{SHC}() =
+#'           \frac{2 V_m V_s}{1 + \frac{V_s}{\alpha ^ 2 N_e}}
+#'          \]
+#'          For $\alpha^2$ the variance of the effect of new mutations, $V_m$
+#'          the genomic mutation rate per generation, and $N_e \approx 2 R_0 N  / (2 R_0 - 1)$.
+#'          As population size increases, the function approaches a limit of $2 V_s V_m$
+#'          $V_s = \omega^2 + \sigma_e^2$ (we hard code the latter as 1) is the width of the fitness function.
 #' @return a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
 #' @export
-simulate_pheno_ts <- function(T, X, params, env_args, growth_fun = "independent", poisson = FALSE) {
-    .Call('phenoecosim_simulate_pheno_ts', PACKAGE = 'phenoecosim', T, X, params, env_args, growth_fun, poisson)
+simulate_pheno_ts <- function(T, X, params, env_args, growth_fun = "independent", poisson = FALSE, varying_g = FALSE) {
+    .Call('phenoecosim_simulate_pheno_ts', PACKAGE = 'phenoecosim', T, X, params, env_args, growth_fun, poisson, varying_g)
 }
 

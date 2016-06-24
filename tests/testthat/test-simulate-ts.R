@@ -19,15 +19,13 @@ omega_Wmax <- 1.10 #maximum fitness across environments
 
 context("Phenotypic timeseries regression tests")
 for( delta in c(1.5, 5, 8))
-  test_that(paste("right object across parameters for delta=",delta), {
-              ## varying params
-              for( Tlim in c(250, 500, 1000))
-                for( Va in c(0.05, 0.1))
-                  for( Vb in c(0.025, 0.05))
-                    for( omegaz in sqrt(c(10, 25)))
-                      for( rho0 in c(0.3, 0.7))
-                        for( alpha in c(0.3, 0.7))
-                        {
+  for( Tlim in c(250, 500, 1000))
+    for( Va in c(0.05, 0.1))
+      for( Vb in c(0.025, 0.05))
+        for( omegaz in sqrt(c(10, 25)))
+          for( rho0 in c(0.3, 0.7))
+            for( alpha in c(0.3, 0.7)) {
+              test_that(paste("right object across parameters constant g"), {
                           Vz <- Vz_(Va, Vb, delta, Ve)
                           gamma_sh <-  1 / (omegaz ^ 2 + Vz)
                           rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
@@ -52,7 +50,16 @@ for( delta in c(1.5, 5, 8))
                                                                       sep=',', collapse=' ')
                                                                 ))
 
-                          ## ceiling
+              })
+              test_that(paste("right object across parameters constant g, ceiling"), {
+                          Vz <- Vz_(Va, Vb, delta, Ve)
+                          gamma_sh <-  1 / (omegaz ^ 2 + Vz)
+                          rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
+                          abar0 <- A;
+                          bbar0 <- alpha * B
+
+                          env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho1, fractgen=fractgen)
+                          X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)
                           param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
                                              A=A, B=B, R0=omega_Wmax, var_a=Va, Vb=Vb, Ve=Ve,
                                              K0=10000)
@@ -67,7 +74,19 @@ for( delta in c(1.5, 5, 8))
                                                                       paste(names(param.list), param.list, sep='='),
                                                                       sep=',', collapse=' ')
                                                                 ))
-                          ## gompertz
+              })
+              test_that(paste("right object across parameters constant g, gompertz"), {
+                          Vz <- Vz_(Va, Vb, delta, Ve)
+                          gamma_sh <-  1 / (omegaz ^ 2 + Vz)
+                          rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
+                          abar0 <- A;
+                          bbar0 <- alpha * B
+
+                          env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho1, fractgen=fractgen)
+                          X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)
+                          param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
+                                             A=A, B=B, R0=omega_Wmax, var_a=Va, Vb=Vb, Ve=Ve,
+                                             K0=10000)
                           set.seed(111)
                           tmp <- simulate_pheno_ts(Tlim, X0, param.list, env.list, "gompertz")
                           target_parms <- paste(Tlim, Va, Vb, omegaz, omega_Wmax, rho0, rho1,
@@ -79,8 +98,17 @@ for( delta in c(1.5, 5, 8))
                                                                       paste(names(param.list), param.list, sep='='),
                                                                       sep=',', collapse=' ')
                                                                 ))
+                                                    })
 
-                          ## thetalogistic
+              test_that(paste("right object across parameters constant g, thetalogistic"), {
+                          Vz <- Vz_(Va, Vb, delta, Ve)
+                          gamma_sh <-  1 / (omegaz ^ 2 + Vz)
+                          rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
+                          abar0 <- A;
+                          bbar0 <- alpha * B
+
+                          env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho1, fractgen=fractgen)
+                          X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)
                           param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
                                              A=A, B=B, R0=omega_Wmax, var_a=Va, Vb=Vb, Ve=Ve,
                                              K0=10000, thetalog=1.0)
@@ -96,8 +124,36 @@ for( delta in c(1.5, 5, 8))
                                                                       paste(names(param.list), param.list, sep='='),
                                                                       sep=',', collapse=' ')
                                                                 ))
-                        }
-})
+                                                    })
+
+              test_that(paste("right object across parameters varying g"), {
+                          Vz <- Vz_(Va, Vb, delta, Ve)
+                          gamma_sh <-  1 / (omegaz ^ 2 + Vz)
+                          rmax <- log(omega_Wmax) -  1 / 2 *  log(1 + Vz / (omegaz ^ 2))
+                          abar0 <- A;
+                          bbar0 <- alpha * B
+
+                          param.list <- list(Vz=Vz, gamma_sh=gamma_sh, rmax=rmax, omegaz=omegaz,
+                                             A=A, B=B, R0=omega_Wmax, var_a=Va, Vb=Vb, Ve=Ve)
+
+                          env.list <- list(delta=delta, sigma_xi=sigma_xi, rho_tau=rho1, fractgen=fractgen)
+                          X0 <- c(zbar=NA, abar=abar0, bbar=bbar0, Wbar=NA, Npop=Npop0, theta=NA)
+
+                          set.seed(111)
+                          tmp <- simulate_pheno_ts(Tlim, X0, param.list, env.list, varying_g=TRUE)
+                          target_parms <- paste(Tlim, Va, Vb, omegaz, omega_Wmax, rho0, rho1,
+                                                alpha, delta, sigma_xi, sep='-')
+                          target_filename <- paste0('simulate-varying-g', target_parms, '.rds')
+                          expect_equal_to_reference(tmp, target_filename, scale=1, tolerance=0.1,
+                                                    label=paste('Pars:',
+                                                                paste(paste(names(env.list), env.list, sep='='),
+                                                                      paste(names(param.list), param.list, sep='='),
+                                                                      sep=',', collapse=' ')
+                                                                ))
+
+              })
+            }
+
 
 context("Poisson mean/variance without plasticity")
 delta <- 0

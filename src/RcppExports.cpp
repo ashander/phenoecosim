@@ -103,6 +103,32 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// N_e
+double N_e(double R0, double N);
+RcppExport SEXP phenoecosim_N_e(SEXP R0SEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    Rcpp::traits::input_parameter< double >::type N(NSEXP);
+    __result = Rcpp::wrap(N_e(R0, N));
+    return __result;
+END_RCPP
+}
+// SHC
+double SHC(double sigma_g2, double omegaz2, double N, double R0);
+RcppExport SEXP phenoecosim_SHC(SEXP sigma_g2SEXP, SEXP omegaz2SEXP, SEXP NSEXP, SEXP R0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< double >::type sigma_g2(sigma_g2SEXP);
+    Rcpp::traits::input_parameter< double >::type omegaz2(omegaz2SEXP);
+    Rcpp::traits::input_parameter< double >::type N(NSEXP);
+    Rcpp::traits::input_parameter< double >::type R0(R0SEXP);
+    __result = Rcpp::wrap(SHC(sigma_g2, omegaz2, N, R0));
+    return __result;
+END_RCPP
+}
 // Env_shift_cpp
 arma::vec Env_shift_cpp(int t, List env_args);
 RcppExport SEXP phenoecosim_Env_shift_cpp(SEXP tSEXP, SEXP env_argsSEXP) {
@@ -128,8 +154,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // simulate_pheno_ts
-arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params, List env_args, std::string growth_fun, bool poisson);
-RcppExport SEXP phenoecosim_simulate_pheno_ts(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP, SEXP growth_funSEXP, SEXP poissonSEXP) {
+arma::mat simulate_pheno_ts(int T, arma::rowvec X, List params, List env_args, std::string growth_fun, bool poisson, bool varying_g);
+RcppExport SEXP phenoecosim_simulate_pheno_ts(SEXP TSEXP, SEXP XSEXP, SEXP paramsSEXP, SEXP env_argsSEXP, SEXP growth_funSEXP, SEXP poissonSEXP, SEXP varying_gSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -139,7 +165,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type env_args(env_argsSEXP);
     Rcpp::traits::input_parameter< std::string >::type growth_fun(growth_funSEXP);
     Rcpp::traits::input_parameter< bool >::type poisson(poissonSEXP);
-    __result = Rcpp::wrap(simulate_pheno_ts(T, X, params, env_args, growth_fun, poisson));
+    Rcpp::traits::input_parameter< bool >::type varying_g(varying_gSEXP);
+    __result = Rcpp::wrap(simulate_pheno_ts(T, X, params, env_args, growth_fun, poisson, varying_g));
     return __result;
 END_RCPP
 }

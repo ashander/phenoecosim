@@ -6,7 +6,7 @@
 function of environment (after Lande Chevin)}
 \usage{
 simulate_pheno_ts(T, X, params, env_args, growth_fun = "independent",
-  poisson = FALSE)
+  poisson = FALSE, varying_g = FALSE)
 }
 \arguments{
 \item{T}{end time, assuming start time of 1}
@@ -21,6 +21,9 @@ simulate_pheno_ts(T, X, params, env_args, growth_fun = "independent",
 
 \item{poisson}{(logical) return N(t+1) = Poisson(f(N(t)). NOTE: only
 implemented for independent and thetalog!}
+
+\item{varying_g}{varying genetic variance using stochastic house of cards (SHC)
+approximation. See Details.}
 }
 \value{
 a long matrix with columns zbar, abar, bbar, Wbar, Npop, theta
@@ -31,5 +34,14 @@ function of environment (after Lande Chevin)
 }
 \details{
 NB - for now assume Tchange = 0 and demography after CL 2010
+         For the SHC after Burger and Lynch (1995) and Kopp and Matuszewski (2013)
+         \[
+         \sigma_{SHC}() =
+          \frac{2 V_m V_s}{1 + \frac{V_s}{\alpha ^ 2 N_e}}
+         \]
+         For $\alpha^2$ the variance of the effect of new mutations, $V_m$
+         the genomic mutation rate per generation, and $N_e \approx 2 R_0 N  / (2 R_0 - 1)$.
+         As population size increases, the function approaches a limit of $2 V_s V_m$
+         $V_s = \omega^2 + \sigma_e^2$ (we hard code the latter as 1) is the width of the fitness function.
 }
 
