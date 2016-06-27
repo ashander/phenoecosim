@@ -15,9 +15,7 @@ Built with [Armadillo](http://arma.sourceforge.net/) and [Rcpp](http://www.rcpp.
 Please cite as below and use the DOI: [![DOI](https://zenodo.org/badge/17403/ashander/phenoecosim.svg)](https://zenodo.org/badge/latestdoi/17403/ashander/phenoecosim)
 
 
-```sh
- Jaime Ashander and Luis-Miguel Chevin (2015). phenoecosim: Simulations of eco-evo trait and demographic dynamics under changing environments.  R package version v0.2.4. 
-```
+>Jaime Ashander and Luis-Miguel Chevin (2015). phenoecosim: Simulations of eco-evo trait and demographic dynamics under changing environments.  R package version v0.2.4.
 
 ### Running in docker
 
